@@ -1,6 +1,6 @@
 const authenticateToken = (req, res, next) => {
   if (req.session && req.session.userId) {
-    return next(); // Proceed if session exists
+    return next(); 
   }
   return res.status(401).json({ message: 'Unauthorized' });
 };
