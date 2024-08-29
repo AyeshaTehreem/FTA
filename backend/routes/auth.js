@@ -1,15 +1,13 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
+const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
-const authMiddleware = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 require('dotenv').config();
-
-const router = express.Router();
 
 // Register
 router.post('/register', async (req, res) => {
-  const { username, email, profilepicture, role, password } = req.body;
+  const { username, email, role, password } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -19,10 +17,9 @@ router.post('/register', async (req, res) => {
 
     const newUser = new User({
       username,
-      profilepicture,
       email,
       password: hashedPassword,
-      role,
+      role
     });
 
     await newUser.save();
@@ -43,7 +40,6 @@ router.post('/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(400).json({ message: 'Invalid email or password' });
 
-    // Set session variables
     req.session.userId = user._id;
     req.session.role = user.role;
     req.session.email = user.email;
@@ -54,11 +50,6 @@ router.post('/login', async (req, res) => {
     console.log('Session email set:', req.session.email);
     console.log('Session username set:', req.session.username);
 
-    // Generate JWT token
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    // Set the token in a cookie
-    res.cookie('token', token, { httpOnly: true });
     res.status(200).json({ message: 'Login successful' });
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error: error.message });
@@ -71,13 +62,12 @@ router.post('/logout', (req, res) => {
     if (err) return res.status(500).json({ message: 'Error logging out', error: err.message });
 
     res.clearCookie('connect.sid'); // Name of the session ID cookie
-    res.clearCookie('token'); // Clear the JWT token cookie
     res.status(200).json({ message: 'Logout successful' });
   });
 });
 
 // Protected route (requires authentication)
-router.get('/protected', authMiddleware, (req, res) => {
+router.get('/protected', authenticateToken, (req, res) => {
   res.status(200).json({ message: 'This is a protected route' });
 });
 
