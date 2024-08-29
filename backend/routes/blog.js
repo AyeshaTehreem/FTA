@@ -3,7 +3,7 @@ const Blog = require('../models/Blog');
 const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
 
-// Create a new blog post
+// Create a new blog post//
 router.post('/create', authenticateToken, async (req, res) => {
   const { title, content, categories, tags } = req.body;
   try {
