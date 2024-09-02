@@ -10,6 +10,11 @@ const MongoStore = require('connect-mongo');
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const blogRoutes = require('./routes/blog');
+const categoryRoutes = require('./routes/category');
+const feedbackRoutes = require('./routes/feedback');
+const tagRoutes = require('./routes/tag');
+const verificationRoutes = require('./routes/verification');
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -19,7 +24,7 @@ const mongoUri = process.env.MONGO_URI;
 
 // MongoDB connection
 mongoose.connect(mongoUri)
-.then(() => console.log('Successful connection to MongoDB'))
+  .then(() => console.log('Successful connection to MongoDB'))
   .catch((err) => console.error('Error occurred in connecting to MongoDB', err));
 
 // Middleware setup
@@ -46,6 +51,11 @@ app.use(
 
 // Use routes
 app.use('/auth', authRoutes);
+app.use('/blogs', blogRoutes);
+app.use('/categories', categoryRoutes);
+app.use('/feedbacks', feedbackRoutes);
+app.use('/tags', tagRoutes);
+app.use('/verifications', verificationRoutes);
 
 // Error handling
 app.use((req, res, next) => {
