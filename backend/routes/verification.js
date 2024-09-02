@@ -26,16 +26,18 @@ router.get('/pending', authenticateToken, async (req, res) => {
   if (req.session.role !== 'verifier') {
     return res.status(403).json({ message: 'Unauthorized action' });
   }
+  
   try {
     const verifications = await Verification.find({
-      status: 'Pending',
       'verifications.verifier': { $ne: req.session.userId }
     }).populate('user', 'username email');
+
     res.json(verifications);
   } catch (error) {
     res.status(500).send('Server error');
   }
 });
+
 
 // Verifier response to verification
 router.post('/:id/respond', authenticateToken, async (req, res) => {
