@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const createError = require('http-errors');
+
 const { authenticateToken } = require('../middleware/auth');
 require('dotenv').config();
 
 // Register
-router.post('/register', async (req, res) => {
-  const { username, email, role, password } = req.body;
+router.post('/register', async (req, res, next) => {
+  const { username, email, password } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -18,19 +20,23 @@ router.post('/register', async (req, res) => {
     const newUser = new User({
       username,
       email,
-      password: hashedPassword,
-      role
+      password: hashedPassword
     });
 
     await newUser.save();
-    res.status(201).json({ message: 'User Registration Successful' });
+    res.status(201).json({
+      message: 'User Registration Successful',
+      username: newUser.username,
+      email: newUser.email,
+      role: 'user'
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to register user', error: error.message });
+    next(createError(500, 'Failed to register user')); // Use next() to handle errors
   }
 });
 
 // Login
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
@@ -49,26 +55,40 @@ router.post('/login', async (req, res) => {
     console.log('Session role set:', req.session.role);
     console.log('Session email set:', req.session.email);
     console.log('Session username set:', req.session.username);
+    console.log('Session cookie attributes:', req.session.cookie);
 
-    res.status(200).json({ message: 'Login successful' });
+    res.status(200).json({ 
+      message: 'Login successful',
+      username: user.username,
+      email: user.email,
+      role: user.role
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error logging in', error: error.message });
+    next(createError(500, 'Error logging in')); // Use next() to handle errors
   }
 });
 
-// Logout
 router.post('/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) return res.status(500).json({ message: 'Error logging out', error: err.message });
-
-    res.clearCookie('connect.sid'); // Name of the session ID cookie
+  console.log('Logout request received:', req.session);
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).json({ message: 'Logout failed', error: err.message });
+    }
+    res.clearCookie('connect.sid');
+    console.log('Logout successful, session destroyed');
     res.status(200).json({ message: 'Logout successful' });
   });
 });
+
+
+
 
 // Protected route (requires authentication)
 router.get('/protected', authenticateToken, (req, res) => {
   res.status(200).json({ message: 'This is a protected route' });
 });
+
+
 
 module.exports = router;

@@ -1,4 +1,3 @@
-const createError = require('http-errors');
 const express = require('express');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
@@ -7,6 +6,8 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const cors = require('cors');
+const createError = require('http-errors');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -34,17 +35,24 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(bodyParser.json());
 
-// Session setup
+app.use(cors({
+  origin: 'http://localhost:3000', // Ensure this matches your frontend URL
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true // Allow credentials (cookies) to be sent
+}));
+
 app.use(
   session({
-    secret: process.env.JWT_SECRET || 'your_jwt_secret_key', // Using JWT_SECRET as session secret
+    secret: process.env.JWT_SECRET || 'your_jwt_secret_key',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: mongoUri }),
     cookie: {
-      secure: false, // Set to true if using HTTPS
+      secure: process.env.NODE_ENV === 'production', // Use true in production with HTTPS
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24, // 1 day
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax' // Adjust based on your environment
     },
   })
 );
@@ -57,16 +65,16 @@ app.use('/feedbacks', feedbackRoutes);
 app.use('/tags', tagRoutes);
 app.use('/verifications', verificationRoutes);
 
-// Error handling
+// Error handling for 404
 app.use((req, res, next) => {
   next(createError(404));
 });
 
+// General error handling
 app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // Render the error page
   res.status(err.status || 500);
   res.json({ error: err.message });
 });

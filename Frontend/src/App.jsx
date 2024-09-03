@@ -10,6 +10,7 @@ import BlogPost from "./components/blogPost/BlogPost";
 import LoadingScreen from "./components/LoadingScreen";
 import ThemeToggle from "./components/ThemeToggle";
 import AboutPage from "./components/about/About";
+import axios from 'axios'; // Import axios
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -21,6 +22,26 @@ const App = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      fetch('http://localhost:5000/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+        keepalive: true,
+      });
+    };
+  
+    window.addEventListener('beforeunload', handleBeforeUnload);
+  
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+  
 
   return (
     <>
@@ -36,7 +57,6 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/blogpost" element={<BlogPost />} />
             <Route path="/aboutpage" element={<AboutPage />} />
-
           </Routes>
           <Footer />
         </Router>

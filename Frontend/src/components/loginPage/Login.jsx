@@ -1,18 +1,55 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { motion } from 'framer-motion';
+import axios from 'axios';
+import { UserContext } from '../../UserContext';
+import { useNavigate } from 'react-router-dom';
 
 const LoginSignup = () => {
+  const { login } = useContext(UserContext);
+  const navigate = useNavigate();  // Use navigate for redirection
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [error, setError] = useState('');  // State for error messages
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 2000);
+    setError('');  // Clear previous errors
+
+    try {
+      let response;
+
+      if (isLogin) {
+        response = await axios.post('http://localhost:5000/auth/login', { email, password }, { withCredentials: true });
+      } else {
+        response = await axios.post('http://localhost:5000/auth/register', { username, email, password });
+        // Clear form values after successful signup
+        setUsername('');
+        setEmail('');
+        setPassword('');
+        // Switch to login view after successful signup
+        setIsLogin(true);
+        setIsLoading(false);  // Stop loading
+        return;  // Prevent further navigation after successful signup
+      }
+
+      const { username: userName, email: userEmail, role } = response.data;
+      login(userName, userEmail, role);
+      navigate('/');  // Navigate to homepage after successful login
+    } catch (error) {
+      console.error(isLogin ? 'Login failed:' : 'Registration failed:', error);
+      setError(error.response?.data?.message || 'An error occurred');  // Set error message from API
+    }
+
+    setIsLoading(false);  // Ensure loading state is stopped after operation
   };
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
+    setError('');  // Clear error when switching forms
   };
 
   return (
@@ -56,21 +93,32 @@ const LoginSignup = () => {
               </div>
               <p className="text-sm text-gray-500 mb-8">or use your email for registration</p>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <input 
-                  type="text" 
-                  placeholder="Name" 
-                  className="w-full p-4 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300" 
-                />
+                {!isLogin && (
+                  <input 
+                    type="text" 
+                    placeholder="Name" 
+                    className="w-full p-4 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                )}
                 <input 
                   type="email" 
                   placeholder="Email" 
-                  className="w-full p-4 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300" 
+                  className="w-full p-4 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
                 <input 
                   type="password" 
                   placeholder="Password" 
-                  className="w-full p-4 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300" 
+                  className="w-full p-4 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
+                {error && (
+                  <p className="text-red-500">{error}</p>  // Display error message
+                )}
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -83,7 +131,7 @@ const LoginSignup = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                  ) : 'SIGN UP'}
+                  ) : isLogin ? 'SIGN IN' : 'SIGN UP'}
                 </motion.button>
               </form>
             </div>
@@ -102,20 +150,20 @@ const LoginSignup = () => {
                 <input 
                   type="email" 
                   placeholder="Email" 
-                  className="w-full p-4 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300" 
+                  className="w-full p-4 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
                 <input 
                   type="password" 
                   placeholder="Password" 
-                  className="w-full p-4 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300" 
+                  className="w-full p-4 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
-                <div className="flex justify-between items-center">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2 form-checkbox text-red-600" />
-                    <span className="text-sm text-gray-600">Remember me</span>
-                  </label>
-                  <button type="button" className="text-sm text-red-600 hover:underline">Forgot Password?</button>
-                </div>
+                {error && (
+                  <p className="text-red-500">{error}</p>  // Display error message
+                )}
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -128,7 +176,7 @@ const LoginSignup = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                  ) : 'SIGN IN'}
+                  ) : isLogin ? 'SIGN IN' : 'SIGN UP'}
                 </motion.button>
               </form>
             </div>
