@@ -1,30 +1,32 @@
 const mongoose = require('mongoose');
 
-// Define the Like schema
+// Define the like schema
 const likeSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
-});
-
-// Define the Reply schema
-const replySchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  text: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Updated field
+  userName: { type: String, required: true }, // New field for user's name
   createdAt: { type: Date, default: Date.now }
 });
 
-// Define the Comment schema
+// Define the comment schema
 const commentSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Updated field
+  userName: { type: String, required: true }, // New field for user's name
   text: { type: String, required: true },
-  replies: [replySchema], // Array of replies
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  replies: [{
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Updated field
+    userName: { type: String, required: true }, // New field for user's name
+    text: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+  }]
 });
 
-// Define the Blog schema
+// Define the blog schema
 const blogSchema = new mongoose.Schema({
   title: { type: String, required: true },
   content: { type: String, required: true },
-  author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  authorName: { type: String, required: true }, // Field for author's name
   categories: [{ type: String }],
   tags: [{ type: String }],
   likes: [likeSchema], // Array of likes

@@ -15,7 +15,8 @@ router.post('/create', authenticateToken, async (req, res) => {
     const blog = new Blog({
       title,
       content,
-      author: req.session.userId, // User ID from session
+      authorId: req.session.userId,
+      authorName: req.session.username,
       categories,
       tags,
     });
@@ -27,127 +28,17 @@ router.post('/create', authenticateToken, async (req, res) => {
   }
 });
 
-// Get all blogs posts
-router.get('/', async (req, res) => {
-  try {
-    const blogs = await Blog.find().populate('author', 'name email');
-    res.json(blogs);
-  } catch (error) {
-    res.status(500).send('Server error');
-  }
-});
-
-// Get a single blog post by ID
-router.get('/:id', async (req, res) => {
-  try {
-    const blog = await Blog.findById(req.params.id).populate('author', 'name email');
-    if (!blog) return res.status(404).send('Blog not found');
-    res.json(blog);
-  } catch (error) {
-    res.status(500).send('Server error');
-  }
-});
-
-// Update a blog post
-router.put('/:id', authenticateToken, async (req, res) => {
-  const { title, content, categories, tags } = req.body;
-
-  try {
-    let blog = await Blog.findById(req.params.id);
-    if (!blog) return res.status(404).send('Blog not found');
-
-    // Check if the logged-in user is the author of the blog
-    if (blog.author.toString() !== req.session.userId) {
-      return res.status(403).send('Unauthorized action');
-    }
-
-    blog.title = title || blog.title;
-    blog.content = content || blog.content;
-    blog.categories = categories || blog.categories;
-    blog.tags = tags || blog.tags;
-
-    await blog.save();
-    res.json(blog);
-  } catch (error) {
-    res.status(500).send('Server error');
-  }
-});
-
-// Delete a blog post
-router.delete('/:id', authenticateToken, async (req, res) => {
-  try {
-    let blog = await Blog.findById(req.params.id);
-    if (!blog) return res.status(404).send('Blog not found');
-
-    // Check if the logged-in user is the author of the blog or an admin
-    if (blog.author.toString() !== req.session.userId && req.session.role !== 'admin') {
-      return res.status(403).send('Unauthorized action');
-    }
-
-    await blog.remove();
-    res.json({ message: 'Blog deleted successfully' });
-  } catch (error) {
-    res.status(500).send('Server error');
-  }
-});
-
-// Get blogs with only initial details
-router.get('/initials', async (req, res) => {
-  try {
-    const blogs = await Blog.find().select('title author categories createdAt').populate('author', 'name email');
-    res.json(blogs);
-  } catch (error) {
-    res.status(500).send('Server error');
-  }
-});
-
-// Get blogs of a certain category
-router.get('/category/:category', async (req, res) => {
-  try {
-    const blogs = await Blog.find({ categories: req.params.category }).populate('author', 'name email');
-    res.json(blogs);
-  } catch (error) {
-    res.status(500).send('Server error');
-  }
-});
-
-// Get all blogs of the logged-in user
-router.get('/blogs/user', authenticateToken, async (req, res) => {
-  try {
-    const userId = req.session.userId; // Assuming session middleware sets userId
-    if (!userId) {
-      return res.status(401).json({ message: 'User not authenticated' });
-    }
-
-    // Retrieve all blogs of the user
-    const blogs = await Blog.find({ author: userId });
-
-    if (blogs.length === 0) {
-      return res.status(404).json({ message: 'No blog posts found for this user' });
-    }
-
-    // Map through blogs to return only the desired attributes
-    const filteredBlogs = blogs.map(blog => ({
-      title: blog.title,
-      content: blog.content,
-      categories: blog.categories,
-      tags: blog.tags
-    }));
-
-    res.status(200).json(filteredBlogs);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-
 // Like a blog post
 router.post('/:id/like', authenticateToken, async (req, res) => {
   try {
     let blog = await Blog.findById(req.params.id);
     if (!blog) return res.status(404).send('Blog not found');
 
-    blog.likes.push({ user: req.session.userId });
+    if (blog.likes.some(like => like.user.toString() === req.session.userId)) {
+      return res.status(400).json({ message: 'Already liked' });
+    }
+
+    blog.likes.push({ user: req.session.userId, userName: req.session.username });
     await blog.save();
     res.json(blog);
   } catch (error) {
@@ -177,7 +68,7 @@ router.post('/:id/comment', authenticateToken, async (req, res) => {
     let blog = await Blog.findById(req.params.id);
     if (!blog) return res.status(404).send('Blog not found');
 
-    blog.comments.push({ user: req.session.userId, text });
+    blog.comments.push({ user: req.session.userId, userName: req.session.username, text });
     await blog.save();
     res.json(blog);
   } catch (error) {
@@ -210,7 +101,7 @@ router.post('/:id/comment/:commentId/reply', authenticateToken, async (req, res)
     const comment = blog.comments.id(req.params.commentId);
     if (!comment) return res.status(404).send('Comment not found');
 
-    comment.replies.push({ user: req.session.userId, text });
+    comment.replies.push({ user: req.session.userId, userName: req.session.username, text });
     await blog.save();
     res.json(blog);
   } catch (error) {
@@ -232,6 +123,94 @@ router.delete('/:id/comment/:commentId/reply/:replyId', authenticateToken, async
     res.json(blog);
   } catch (error) {
     res.status(500).send('Server error');
+  }
+});
+
+// Get all blogs posts with initials
+router.get('/', async (req, res) => {
+  try {
+    const blogs = await Blog.find()
+      .select('title authorName categories createdAt likes comments');
+      
+
+    // Map through blogs to include the counts of likes and comments + replies
+    const filteredBlogs = blogs.map(blog => ({
+      title: blog.title,
+      authorName: blog.authorName,
+      categories: blog.categories,
+      createdAt: blog.createdAt,
+      likes: blog.likes.length,
+      comments: blog.comments.length + blog.comments.reduce((count, comment) => count + comment.replies.length, 0)
+    }));
+
+    res.json(filteredBlogs);
+  } catch (error) {
+    res.status(500).send('Server error');
+  }
+});
+
+// Get a single blog post by ID with full details
+router.get('/:id', async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).send('Blog not found');
+    res.json(blog);
+  } catch (error) {
+    res.status(500).send('Server error');
+  }
+});
+
+// Get blogs of a certain category with initials
+router.get('/category/:category', async (req, res) => {
+  try {
+    const blogs = await Blog.find({ categories: req.params.category })
+      .select('title authorName categories createdAt likes comments');
+
+    // Map through blogs to include the counts of likes and comments + replies
+    const filteredBlogs = blogs.map(blog => ({
+      title: blog.title,
+      authorName: blog.authorName,
+      categories: blog.categories,
+      createdAt: blog.createdAt,
+      likes: blog.likes.length,
+      comments: blog.comments.length + blog.comments.reduce((count, comment) => count + comment.replies.length, 0)
+    }));
+
+    res.json(filteredBlogs);
+  } catch (error) {
+    res.status(500).send('Server error');
+  }
+});
+
+// Get all blogs of the logged-in user with initials
+router.get('/blogs/user', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    // Retrieve all blogs of the user with initials only
+    const blogs = await Blog.find({ authorId: userId })
+      .select('title authorName categories createdAt likes comments');
+
+    if (blogs.length === 0) {
+      return res.status(404).json({ message: 'No blog posts found for this user' });
+    }
+
+    // Map through blogs to return only the desired attributes
+    const filteredBlogs = blogs.map(blog => ({
+      title: blog.title,
+      authorName: blog.authorName,
+      categories: blog.categories,
+      createdAt: blog.createdAt,
+      likes: blog.likes.length,
+      comments: blog.comments.length + blog.comments.reduce((count, comment) => count + comment.replies.length, 0)
+    }));
+
+    res.status(200).json(filteredBlogs);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
