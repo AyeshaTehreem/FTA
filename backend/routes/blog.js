@@ -111,15 +111,35 @@ router.get('/category/:category', async (req, res) => {
   }
 });
 
-// Get blogs created by the logged-in user
-router.get('/user', authenticateToken, async (req, res) => {
+// Get all blogs of the logged-in user
+router.get('/blogs/user', authenticateToken, async (req, res) => {
   try {
-    const blogs = await Blog.find({ author: req.session.userId }).populate('author', 'name email');
-    res.json(blogs);
+    const userId = req.session.userId; // Assuming session middleware sets userId
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    // Retrieve all blogs of the user
+    const blogs = await Blog.find({ author: userId });
+
+    if (blogs.length === 0) {
+      return res.status(404).json({ message: 'No blog posts found for this user' });
+    }
+
+    // Map through blogs to return only the desired attributes
+    const filteredBlogs = blogs.map(blog => ({
+      title: blog.title,
+      content: blog.content,
+      categories: blog.categories,
+      tags: blog.tags
+    }));
+
+    res.status(200).json(filteredBlogs);
   } catch (error) {
-    res.status(500).send('Server error');
+    res.status(500).json({ message: error.message });
   }
 });
+
 
 // Like a blog post
 router.post('/:id/like', authenticateToken, async (req, res) => {
