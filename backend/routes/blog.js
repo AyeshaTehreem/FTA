@@ -34,31 +34,45 @@ router.post('/:id/like', authenticateToken, async (req, res) => {
     let blog = await Blog.findById(req.params.id);
     if (!blog) return res.status(404).send('Blog not found');
 
-    if (blog.likes.some(like => like.user.toString() === req.session.userId)) {
+    // Check if the user has already liked the blog
+    const alreadyLiked = blog.likes.some(like => like.userId === req.session.userId);
+    if (alreadyLiked) {
       return res.status(400).json({ message: 'Already liked' });
     }
 
-    blog.likes.push({ user: req.session.userId, userName: req.session.username });
+    // Add the like
+    blog.likes.push({ userId: req.session.userId, userName: req.session.username });
     await blog.save();
     res.json(blog);
   } catch (error) {
-    res.status(500).send('Server error');
+    res.status(500).json({ message: error.message });
   }
 });
 
-// Unlike a blog post
+
 router.delete('/:id/unlike', authenticateToken, async (req, res) => {
   try {
+    // Find the blog by its ID
     let blog = await Blog.findById(req.params.id);
     if (!blog) return res.status(404).send('Blog not found');
 
-    blog.likes = blog.likes.filter(like => like.user.toString() !== req.session.userId);
-    await blog.save();
-    res.json(blog);
+    // Find the like object to remove
+    const likeToRemove = blog.likes.find(like => like.userId.toString() === req.session.userId);
+    if (!likeToRemove) return res.status(400).json({ message: 'Like not found' });
+
+    // Remove the like object by its _id
+    await Blog.updateOne(
+      { _id: req.params.id },
+      { $pull: { likes: { _id: likeToRemove._id } } }
+    );
+
+    res.json({ message: 'Like removed successfully' });
   } catch (error) {
-    res.status(500).send('Server error');
+    res.status(500).json({ message: error.message });
   }
 });
+
+
 
 // Comment on a blog post
 router.post('/:id/comment', authenticateToken, async (req, res) => {
@@ -68,11 +82,11 @@ router.post('/:id/comment', authenticateToken, async (req, res) => {
     let blog = await Blog.findById(req.params.id);
     if (!blog) return res.status(404).send('Blog not found');
 
-    blog.comments.push({ user: req.session.userId, userName: req.session.username, text });
+    blog.comments.push({ userId: req.session.userId, userName: req.session.username, text });
     await blog.save();
     res.json(blog);
   } catch (error) {
-    res.status(500).send('Server error');
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -82,13 +96,27 @@ router.delete('/:id/comment/:commentId', authenticateToken, async (req, res) => 
     let blog = await Blog.findById(req.params.id);
     if (!blog) return res.status(404).send('Blog not found');
 
-    blog.comments = blog.comments.filter(comment => comment._id.toString() !== req.params.commentId || comment.user.toString() !== req.session.userId);
+    // Find the comment object to remove
+    const commentIndex = blog.comments.findIndex(comment => 
+      comment._id.toString() === req.params.commentId && 
+      comment.userId.toString()  === req.session.userId
+    );
+
+    if (commentIndex === -1) {
+      return res.status(400).json({ message: 'Comment not found or user not authorized' });
+    }
+
+    // Remove the comment object by its index
+    blog.comments.splice(commentIndex, 1);
     await blog.save();
-    res.json(blog);
+
+    res.json({ message: 'Comment removed successfully' });
   } catch (error) {
-    res.status(500).send('Server error');
+    res.status(500).json({ message: error.message });
   }
 });
+
+
 
 // Reply to a comment
 router.post('/:id/comment/:commentId/reply', authenticateToken, async (req, res) => {
@@ -101,11 +129,11 @@ router.post('/:id/comment/:commentId/reply', authenticateToken, async (req, res)
     const comment = blog.comments.id(req.params.commentId);
     if (!comment) return res.status(404).send('Comment not found');
 
-    comment.replies.push({ user: req.session.userId, userName: req.session.username, text });
+    comment.replies.push({ userId: req.session.userId, userName: req.session.username, text });
     await blog.save();
     res.json(blog);
   } catch (error) {
-    res.status(500).send('Server error');
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -118,11 +146,19 @@ router.delete('/:id/comment/:commentId/reply/:replyId', authenticateToken, async
     const comment = blog.comments.id(req.params.commentId);
     if (!comment) return res.status(404).send('Comment not found');
 
-    comment.replies = comment.replies.filter(reply => reply._id.toString() !== req.params.replyId || reply.user.toString() !== req.session.userId);
-    await blog.save();
-    res.json(blog);
+    // Find the reply to remove
+    const replyToRemove = comment.replies.find(reply => reply._id.toString() === req.params.replyId && reply.userId.toString() === req.session.userId);
+    if (!replyToRemove) return res.status(400).json({ message: 'Reply not found or user not authorized' });
+
+    // Remove the reply object by its _id
+    await Blog.updateOne(
+      { _id: req.params.id, 'comments._id': req.params.commentId },
+      { $pull: { 'comments.$.replies': { _id: replyToRemove._id } } }
+    );
+
+    res.json({ message: 'Reply removed successfully' });
   } catch (error) {
-    res.status(500).send('Server error');
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -145,7 +181,7 @@ router.get('/', async (req, res) => {
 
     res.json(filteredBlogs);
   } catch (error) {
-    res.status(500).send('Server error');
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -156,7 +192,7 @@ router.get('/:id', async (req, res) => {
     if (!blog) return res.status(404).send('Blog not found');
     res.json(blog);
   } catch (error) {
-    res.status(500).send('Server error');
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -178,7 +214,7 @@ router.get('/category/:category', async (req, res) => {
 
     res.json(filteredBlogs);
   } catch (error) {
-    res.status(500).send('Server error');
+    res.status(500).json({ message: error.message });
   }
 });
 
