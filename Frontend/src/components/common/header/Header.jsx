@@ -96,8 +96,14 @@ const Header = () => {
             
             <div className="text-sm text-gray-600">CURRENCY: USD</div>
             <div className="text-sm text-gray-600">WISHLIST: 12</div>
-            <Link to="/editorblog" className="text-sm text-gray-600 hover:text-gray-800">ADD BLOG</Link>
-           
+            
+            {/* Conditionally render "ADD BLOG" button based on user role */}
+            {user.isLoggedIn && user.role === 'editor' && (
+              <Link to="/editorblog" className="text-sm text-gray-600 hover:text-gray-800">
+                ADD BLOG
+              </Link>
+            )}
+            
             <div className="text-sm text-gray-600">FAKE NEWS</div>
             {user.isLoggedIn ? (
               <button
@@ -173,31 +179,13 @@ const Header = () => {
             <li>
               <button className="text-gray-600 hover:text-gray-800">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                  <path fillRule="evenodd" d="M2 4a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4zm2 0v12h12V4H4z" clipRule="evenodd" />
                 </svg>
               </button>
             </li>
           </ul>
         </nav>
       </div>
-      {showMegamenu && (
-        <div className="absolute left-0 w-full bg-white shadow-lg z-20">
-          <div className="container mx-auto px-4 py-6 grid grid-cols-4 gap-4">
-            {newsItems.map((newsItem, index) => (
-              <div key={index} className="relative group">
-                <Link to={newsItem.link} className="block overflow-hidden rounded-lg shadow-lg transition-transform transform hover:-translate-y-1">
-                  <img src={newsItem.img} alt={newsItem.title} className="w-full h-32 object-cover" />
-                  <div className="absolute inset-0 bg-black bg-opacity-25 transition-opacity opacity-0 group-hover:opacity-100"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
-                    <p className="text-sm text-white">{newsItem.category}</p>
-                    <p className="text-lg text-white font-bold">{newsItem.title}</p>
-                  </div>
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </header>
   );
 };

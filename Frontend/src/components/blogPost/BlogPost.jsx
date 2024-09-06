@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import 'font-awesome/css/font-awesome.min.css';
 
 const BlogPost = () => {
   // Initialize state to keep track of active tags
@@ -45,15 +46,27 @@ const BlogPost = () => {
             alt="White House Press Conference" 
             className="mb-4 w-full rounded-lg shadow-md transition-all duration-300 transform hover:scale-101 hover:brightness-105 hover:shadow-xl hover:rounded-2xl" 
           />
+<div className="mb-4 flex items-center">
+  <span className="text-gray-600 mr-4 font-bold hover:text-red-600 cursor-pointer">15.5k views</span>
+  <span className="text-gray-600 mr-4 flex items-center font-bold hover:text-red-600 cursor-pointer">
+    <i className="fa-regular fa-heart text-red-600 mr-1"></i>
+    1.2k Likes
+  </span>
+  <span className="text-gray-600 mr-4 flex items-center font-bold hover:text-red-600 cursor-pointer">
+    <i className="fa-regular fa-comment text-red-600 mr-1"></i>
+    320 Comments
+  </span>
+  <button className="bg-red-600 text-white px-3 py-1 rounded mr-2 hover:bg-red-700">Facebook</button>
+  <button className="bg-red-500 text-white px-3 py-1 rounded mr-2 hover:bg-red-600">Twitter</button>
+  <button className="bg-green-500 text-white px-3 py-1 rounded mr-2 hover:bg-green-600">Whatsapp</button>
+  <button className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600">Telegram</button>
+  <button className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800">LinkedIn</button>
+</div>
 
-          <div className="mb-4 flex items-center">
-            <span className="text-gray-600 mr-4">15.k views</span>
-            <button className="bg-red-600 text-white px-3 py-1 rounded mr-2 hover:bg-red-700">Facebook</button>
-            <button className="bg-red-500 text-white px-3 py-1 rounded mr-2 hover:bg-red-600">Twitter</button>
-            <button className="bg-green-500 text-white px-3 py-1 rounded mr-2 hover:bg-green-600">Whatsapp</button>
-            <button className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600">Telegram</button>
-            <button className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800">LinkedIn</button>
-          </div>
+
+
+
+
           <article className="prose lg:prose-xl">
            
 <p>Even the all-powerful Pointing has no control over the blind texts; it is an almost unorthographic life, full of the unknown and the unpredictable. In the realm of text and typography, 'blind texts' often refer to placeholder content used to fill space and demonstrate the visual form of a document or a typeface without relying on meaningful content. This concept highlights the tension between form and function, showing how design elements can sometimes overpower the content they are meant to support. Our blog delves into this fascinating interplay, exploring how design choices can influence our perception and understanding of text, and how the invisible forces of design shape our interactions with the written word.</p>{/* Rest of the article content */}
