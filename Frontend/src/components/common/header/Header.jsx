@@ -93,9 +93,12 @@ const Header = () => {
             <Link to="/contact" className="text-sm text-gray-600 hover:text-gray-800">CONTACT</Link>
             <Link to="/donation" className="text-sm text-gray-600 hover:text-gray-800">DONATION</Link>
             <Link to="/blogpost" className="text-sm text-gray-600 hover:text-gray-800">BLOGS</Link>
-            <Link to="/editorblog" className="text-sm text-gray-600 hover:text-gray-800">ADD BLOGS</Link>
+            
             <div className="text-sm text-gray-600">CURRENCY: USD</div>
             <div className="text-sm text-gray-600">WISHLIST: 12</div>
+            <Link to="/editorblog" className="text-sm text-gray-600 hover:text-gray-800">ADD BLOG</Link>
+           
+            <div className="text-sm text-gray-600">FAKE NEWS</div>
             {user.isLoggedIn ? (
               <button
                 onClick={handleLogout}
