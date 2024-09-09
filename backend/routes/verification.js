@@ -80,20 +80,41 @@ router.post('/:id/respond', authenticateToken, async (req, res) => {
 
 router.get('/reports', authenticateToken, async (req, res) => {
   try {
-    // Fetch all reports where the logged-in user is the creator of the verification request
-    const reports = await Report.find({ 'verification.user': req.session.userId })
-                                .populate('verification', 'imageUrl status')
-                                .populate('responses.verifier', 'username email');
-                                
-    if (reports.length === 0) {
+    // Fetch all reports and populate the verification field
+    const reports = await Report.find()
+                                .populate({
+                                  path: 'verification',
+                                  match: { user: req.session.userId }, // Filter by user ID
+                                  select: 'imageUrl status' // Select necessary fields
+                                })
+                                .populate({
+                                  path: 'responses.verifier',
+                                  select: '_id' // Only select _id to avoid returning verifier details
+                                });
+
+    // Filter out reports where the populated verification field is null
+    const userReports = reports.filter(report => report.verification !== null);
+
+    if (userReports.length === 0) {
       return res.status(404).json({ message: 'No reports found' });
     }
 
-    res.status(200).json(reports);
+    // Transform the response to only include required fields
+    const response = userReports.map(report => ({
+      imageUrl: report.verification.imageUrl,
+      responses: report.responses.map(response => ({
+        response: response.response,
+      })),
+      status: report.verification.status,
+    }));
+
+    res.status(200).json(response);
   } catch (error) {
+    console.error(error);
     res.status(500).send('Server error');
   }
 });
+
 
 
 module.exports = router;
