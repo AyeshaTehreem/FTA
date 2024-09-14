@@ -2,19 +2,12 @@ import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from 'axios';
-import { UserContext } from "../../../UserContext"; // Correct path
+import { UserContext } from "../../../UserContext"; // Ensure the path is correct
 
 const Header = () => {
   const { user, logout } = useContext(UserContext); // Access user context
   const [showMegamenu, setShowMegamenu] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  const newsItems = [
-    { img: "/images/life/life1.jpg", link: "/news/item1", title: "Lorem ipsum dolor sit amet, consectetur adipiscing.", category: "FASHION" },
-    { img: "/images/gallery/g2.jpg", link: "/news/item2", title: "Proin quis massa tincidunt justo cursus dapibus.", category: "SPORTS" },
-    { img: "/images/gallery/g3.jpg", link: "/news/item3", title: "Nulla hendrerit dui in erat varius vestibulum.", category: "TRAVEL" },
-    { img: "/images/gallery/g4.jpg", link: "/news/item4", title: "Maecenas dictum lacus in bibendum commodo.", category: "BUSINESS" },
-  ];
 
   const handleMouseEnter = () => setShowMegamenu(true);
   const handleMouseLeave = () => setShowMegamenu(false);
@@ -26,43 +19,6 @@ const Header = () => {
 
     return () => clearInterval(interval);
   }, []);
-
-  const TrendingSection = () => {
-    const [currentTextIndex, setCurrentTextIndex] = useState(0);
-    const trendingTexts = [
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-      "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-      "When an unknown printer took a galley of type and scrambled it to make a type specimen book."
-    ];
-
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setCurrentTextIndex((prevIndex) => (prevIndex + 1) % trendingTexts.length);
-      }, 3000);
-
-      return () => clearInterval(interval);
-    }, [trendingTexts.length]);
-
-    return (
-      <div className="bg-gray-100 py-2">
-        <div className="container mx-auto px-4 flex items-center">
-          <span className="bg-black text-white px-2 py-1 text-sm font-bold mr-4">TRENDING NOW</span>
-          <AnimatePresence>
-            <motion.p
-              key={currentTextIndex}
-              className="text-sm text-gray-700"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.5 }}
-            >
-              {trendingTexts[currentTextIndex]}
-            </motion.p>
-          </AnimatePresence>
-        </div>
-      </div>
-    );
-  };
 
   const handleLogout = async () => {
     try {
@@ -93,19 +49,25 @@ const Header = () => {
             <Link to="/contact" className="text-sm text-gray-600 hover:text-gray-800">CONTACT</Link>
             <Link to="/donation" className="text-sm text-gray-600 hover:text-gray-800">DONATION</Link>
             <Link to="/blogpost" className="text-sm text-gray-600 hover:text-gray-800">BLOGS</Link>
-            
+            {/* Verify Image appears only for verifiers */}
+            {user?.isLoggedIn && user.role === 'verifier' && (
+              <Link to="/verifyimage" className="text-sm text-gray-600 hover:text-gray-800">Verify Image</Link>
+            )}
+            {user.isLoggedIn && user.role === 'verifier' && (
+  <Link to="/pendingimages" className="text-sm text-gray-600 hover:text-gray-800">
+    Pending Verifications
+  </Link>
+)}
+
             <div className="text-sm text-gray-600">CURRENCY: USD</div>
             <div className="text-sm text-gray-600">WISHLIST: 12</div>
-            
+
             {/* Conditionally render "ADD BLOG" button based on user role */}
-            {user.isLoggedIn && user.role === 'editor' && (
-              <Link to="/editorblog" className="text-sm text-gray-600 hover:text-gray-800">
-                ADD BLOG
-              </Link>
+            {user?.isLoggedIn && user.role === 'editor' && (
+              <Link to="/editorblog" className="text-sm text-gray-600 hover:text-gray-800">ADD BLOG</Link>
             )}
-            
-            <div className="text-sm text-gray-600">FAKE NEWS</div>
-            {user.isLoggedIn ? (
+
+            {user?.isLoggedIn ? (
               <button
                 onClick={handleLogout}
                 className="text-sm text-gray-600 hover:text-gray-800"
@@ -113,9 +75,7 @@ const Header = () => {
                 LOGOUT
               </button>
             ) : (
-              <Link to="/login" className="text-sm text-gray-600 hover:text-gray-800">
-                SIGN UP OR LOGIN
-              </Link>
+              <Link to="/login" className="text-sm text-gray-600 hover:text-gray-800">SIGN UP OR LOGIN</Link>
             )}
           </div>
         </div>
@@ -134,7 +94,6 @@ const Header = () => {
             </select>
           </div>
         </div>
-        <TrendingSection />
         <nav className="py-2 border-t border-b border-gray-200">
           <ul className="flex justify-between items-center">
             <li className="relative group">
@@ -142,19 +101,13 @@ const Header = () => {
                 HOME
               </Link>
             </li>
-            <li 
-              className="relative group"
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            >
+            <li className="relative group" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
               <Link to="/mega-menu" className="text-sm font-semibold transition-colors duration-200 flex items-center text-gray-800 hover:text-red-600">
                 MEGA MENU ▼
               </Link>
             </li>
             <li className="relative group">
-              <Link to="/pages" className="text-sm font-semibold transition-colors duration-200 flex items-center text-red-600">
-                PAGES ▼
-              </Link>
+              <Link to="/pages" className="text-sm font-semibold transition-colors duration-200 flex items-center text-red-600">PAGES ▼</Link>
             </li>
             <li className="relative group">
               <Link to="/aboutpage" className="text-sm font-semibold transition-colors duration-200 flex items-center text-gray-800 hover:text-red-600">

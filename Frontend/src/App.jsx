@@ -1,69 +1,30 @@
 import React, { useState, useEffect } from "react";
-import Header from "./components/common/header/Header";
-import "./App.css";
-import Homepages from "./components/home/Homepages";
-import Footer from "./components/common/footer/Footer";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Header from "./components/common/header/Header";
+import Footer from "./components/common/footer/Footer";
+import Homepages from "./components/home/Homepages";
+import PendingImage from "./components/Verification/pendingImage"; // correct casing
+import VerifyImage from "./components/Verification/verifyimage";
 import Login from "./components/loginPage/Login";
 import Contact from "./components/contactPage/Contact";
 import BlogPost from "./components/blogPost/BlogPost";
-import LoadingScreen from "./components/LoadingScreen";
-import ThemeToggle from "./components/ThemeToggle";
 import AboutPage from "./components/about/About";
-import EditorBlog from "./components/blogPost/EditorBlog"
-import axios from 'axios'; // Import axios
 
 const App = () => {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      fetch('http://localhost:5000/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({}),
-        keepalive: true,
-      });
-    };
-  
-    window.addEventListener('beforeunload', handleBeforeUnload);
-  
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
-  
-
   return (
-    <>
-      {isLoading ? (
-        <LoadingScreen />
-      ) : (
-        <Router>
-          <Header />
-          <ThemeToggle />
-          <Routes>
-            <Route path="/" element={<Homepages />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/blogpost" element={<BlogPost />} />
-            <Route path="/editorblog" element={<EditorBlog />} />
-            <Route path="/aboutpage" element={<AboutPage />} />
-          </Routes>
-          <Footer />
-        </Router>
-      )}
-    </>
+    <Router>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Homepages />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/blogpost" element={<BlogPost />} />
+        <Route path="/aboutpage" element={<AboutPage />} />
+        <Route path="/pendingimages" element={<PendingImage />} /> {/* Add this route */}
+        <Route path="/verifyimage" element={<VerifyImage />} /> {/* Add this route */}
+      </Routes>
+      <Footer />
+    </Router>
   );
 };
 
