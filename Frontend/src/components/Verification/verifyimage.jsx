@@ -1,10 +1,11 @@
+// VerifyBlog.js
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Import axios for API calls
+import axios from 'axios';
 
 const VerifyBlog = () => {
   const [open, setOpen] = useState(false);
   const [image, setImage] = useState(null);
-  const [uploading, setUploading] = useState(false); // For upload status
+  const [uploading, setUploading] = useState(false);
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
@@ -19,17 +20,16 @@ const VerifyBlog = () => {
     e.preventDefault();
 
     if (image) {
-      // Prepare form data to send the image to the server
       const formData = new FormData();
-      formData.append('imageUrl', image);
+      formData.append('image', image); // Ensure 'image' matches backend field name
 
       try {
         setUploading(true);
-        const response = await axios.post('http://localhost:5000/upload', formData, {
+        const response = await axios.post('http://localhost:5000/verifications/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
-          withCredentials: true, // If you're using cookies for authentication
+          withCredentials: true,
         });
 
         if (response.status === 201) {
@@ -51,7 +51,6 @@ const VerifyBlog = () => {
   };
 
   useEffect(() => {
-    // Automatically open the dialog when the component mounts
     setOpen(true);
   }, []);
 

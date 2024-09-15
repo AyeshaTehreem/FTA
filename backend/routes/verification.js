@@ -1,23 +1,49 @@
 const express = require('express');
-const { Verification, Report } = require('../models/Verification');
-const User = require('../models/User');
+const multer = require('multer');
+const crypto = require('crypto');
+const path = require('path');
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const s3Client = require('../middleware/config'); // Adjust the path if necessary
 const { authenticateToken } = require('../middleware/auth');
-const router = express.Router();
+const User = require('../models/User');
+const { Verification, Report } = require('../models/Verification');
 
-// Upload image for verification
-router.post('/upload', authenticateToken, async (req, res) => {
-  const { imageUrl } = req.body;
+
+const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
+router.post('/upload', authenticateToken, upload.single('image'), async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).send('No file uploaded.');
+    }
+    
+    const file = req.file;
+    const fileExtension = path.extname(file.originalname);
+    const fileName = `${crypto.randomBytes(16).toString('hex')}${fileExtension}`;
+    
+    const uploadParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: fileName,
+      Body: file.buffer,
+      ContentType: file.mimetype
+    };
+    
+    const command = new PutObjectCommand(uploadParams);
+    await s3Client.send(command);
+    
     const verifiers = await User.find({ role: 'verifier' }, '_id');
     const verification = new Verification({
-      imageUrl,
+      imageUrl: fileName,
       user: req.session.userId,
       verifiers: verifiers.map(verifier => verifier._id),
     });
+    
     await verification.save();
+    
     res.status(201).json(verification);
   } catch (error) {
-    res.status(500).send('Server error');
+    console.error('Error uploading image:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

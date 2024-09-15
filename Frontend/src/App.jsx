@@ -9,6 +9,7 @@ import Report from "./components/Verification/Report"; // Import the Report comp
 import Login from "./components/loginPage/Login";
 import Contact from "./components/contactPage/Contact";
 import BlogPost from "./components/blogPost/BlogPost";
+import EditorBlog from "./components/blogPost/EditorBlog";
 import AboutPage from "./components/about/About";
 
 const App = () => {
@@ -20,6 +21,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/blogpost" element={<BlogPost />} />
+        <Route path="/editorblog" element={<EditorBlog />} />
         <Route path="/aboutpage" element={<AboutPage />} />
         <Route path="/pendingimages" element={<PendingImage />} /> {/* Add this route */}
         <Route path="/verifyimage" element={<VerifyImage />} /> {/* Add this route */}

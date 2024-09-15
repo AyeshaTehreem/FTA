@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { UserContext } from "../../../UserContext"; // Ensure the path is correct
 
@@ -8,6 +7,7 @@ const Header = () => {
   const { user, logout } = useContext(UserContext); // Access user context
   const [showMegamenu, setShowMegamenu] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const navigate = useNavigate();
 
   const handleMouseEnter = () => setShowMegamenu(true);
   const handleMouseLeave = () => setShowMegamenu(false);
@@ -26,6 +26,7 @@ const Header = () => {
       if (response.status === 200) {
         alert('Logout successful');
         logout(); // Update the context state
+        navigate('/'); // Navigate to the homepage
       } else {
         console.error('Logout failed with status:', response.status);
       }
@@ -49,30 +50,24 @@ const Header = () => {
             <Link to="/contact" className="text-sm text-gray-600 hover:text-gray-800">CONTACT</Link>
             <Link to="/donation" className="text-sm text-gray-600 hover:text-gray-800">DONATION</Link>
             <Link to="/blogpost" className="text-sm text-gray-600 hover:text-gray-800">BLOGS</Link>
-            {/* Verify Image appears only for verifiers */}
-            {user?.isLoggedIn && user.role === 'verifier' && (
-              <Link to="/verifyimage" className="text-sm text-gray-600 hover:text-gray-800">VERIFY IMAGE </Link>
+            {user?.isLoggedIn && (
+              <Link to="/verifyimage" className="text-sm text-gray-600 hover:text-gray-800">VERIFY NEWS</Link>
             )}
-            {user.isLoggedIn && user.role === 'verifier' && (
-  <Link to="/pendingimages" className="text-sm text-gray-600 hover:text-gray-800">
-    Pending Verifications
-  </Link>
-)}
-            {user.isLoggedIn && user.role === 'verifier' && (
-  <Link to="/report" className="text-sm text-gray-600 hover:text-gray-800">
-      REPORTS
-  </Link>
-)}
-
-
+            {user?.isLoggedIn && user.role === 'verifier' && (
+              <Link to="/pendingimages" className="text-sm text-gray-600 hover:text-gray-800">
+                PENDING VERIFICATIONS
+              </Link>
+            )}
+            {user?.isLoggedIn && (
+              <Link to="/report" className="text-sm text-gray-600 hover:text-gray-800">
+                REPORTS
+              </Link>
+            )}
             <div className="text-sm text-gray-600">CURRENCY: USD</div>
             <div className="text-sm text-gray-600">WISHLIST: 12</div>
-
-            {/* Conditionally render "ADD BLOG" button based on user role */}
             {user?.isLoggedIn && user.role === 'editor' && (
               <Link to="/editorblog" className="text-sm text-gray-600 hover:text-gray-800">ADD BLOG</Link>
             )}
-
             {user?.isLoggedIn ? (
               <button
                 onClick={handleLogout}

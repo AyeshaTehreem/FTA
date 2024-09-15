@@ -11,7 +11,7 @@ const verificationSchema = new Schema({
   imageUrl: { type: String, required: true },
   status: { type: String, enum: ['Pending', 'Verified', 'Rejected'], default: 'Pending' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  verifiers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Array of assigned verifier IDs
+  verifiers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   verifications: [verificationResponseSchema],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date },
