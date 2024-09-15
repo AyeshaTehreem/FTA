@@ -51,13 +51,19 @@ const Header = () => {
             <Link to="/blogpost" className="text-sm text-gray-600 hover:text-gray-800">BLOGS</Link>
             {/* Verify Image appears only for verifiers */}
             {user?.isLoggedIn && user.role === 'verifier' && (
-              <Link to="/verifyimage" className="text-sm text-gray-600 hover:text-gray-800">Verify Image</Link>
+              <Link to="/verifyimage" className="text-sm text-gray-600 hover:text-gray-800">VERIFY IMAGE </Link>
             )}
             {user.isLoggedIn && user.role === 'verifier' && (
   <Link to="/pendingimages" className="text-sm text-gray-600 hover:text-gray-800">
     Pending Verifications
   </Link>
 )}
+            {user.isLoggedIn && user.role === 'verifier' && (
+  <Link to="/report" className="text-sm text-gray-600 hover:text-gray-800">
+      REPORTS
+  </Link>
+)}
+
 
             <div className="text-sm text-gray-600">CURRENCY: USD</div>
             <div className="text-sm text-gray-600">WISHLIST: 12</div>

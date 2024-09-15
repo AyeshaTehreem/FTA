@@ -5,6 +5,7 @@ import Footer from "./components/common/footer/Footer";
 import Homepages from "./components/home/Homepages";
 import PendingImage from "./components/Verification/pendingImage"; // correct casing
 import VerifyImage from "./components/Verification/verifyimage";
+import Report from "./components/Verification/Report"; // Import the Report component
 import Login from "./components/loginPage/Login";
 import Contact from "./components/contactPage/Contact";
 import BlogPost from "./components/blogPost/BlogPost";
@@ -22,6 +23,7 @@ const App = () => {
         <Route path="/aboutpage" element={<AboutPage />} />
         <Route path="/pendingimages" element={<PendingImage />} /> {/* Add this route */}
         <Route path="/verifyimage" element={<VerifyImage />} /> {/* Add this route */}
+        <Route path="/report" element={<Report />} /> {/* Add the Report route */}
       </Routes>
       <Footer />
     </Router>
