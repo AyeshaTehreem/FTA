@@ -1,44 +1,193 @@
 import React, { useState } from 'react';
 import 'font-awesome/css/font-awesome.min.css';
+import React, { useState, useEffect } from 'react';
+import { Heart, Share2, MessageSquare, Bookmark, ThumbsUp, Eye, Clock, Tag, User, Calendar, ChevronLeft, ChevronRight, Flag } from 'lucide-react';
 
 const BlogPost = () => {
-  // Initialize state to keep track of active tags
   const [activeTag, setActiveTag] = useState(null);
   const [year, setYear] = useState('');
   const [month, setMonth] = useState('');
   const [date, setDate] = useState('');
+  const [likes, setLikes] = useState(1523);
+  const [views, setViews] = useState(15234);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [comments, setComments] = useState([
+    { id: 1, author: 'Jane Doe', content: 'Great article! Very insightful.', likes: 12, replies: [], timestamp: '2024-01-15T10:30:00Z' },
+    { id: 2, author: 'John Smith', content: 'I disagree with point 3. Here\'s why...', likes: 5, replies: [], timestamp: '2024-01-15T11:45:00Z' },
+    { id: 3, author: 'Alice Johnson', content: 'Thanks for sharing this information!', likes: 8, replies: [], timestamp: '2024-01-15T13:20:00Z' },
+  ]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [relatedArticles, setRelatedArticles] = useState([
+    { title: 'The Future of AI in 2024', author: 'Sarah Connor', date: '2024-01-15', image: "/images/life/life1.jpg" },
+    { title: 'Blockchain Revolution in Finance', author: 'Mark Zuckerberg', date: '2024-01-18', image: "/images/life/life3.jpg" },
+    { title: '5G and Its Impact on IoT', author: 'Elon Musk', date: '2024-01-20', image:"/images/life/life3.jpg" },
+  ]);
+  const [showFullContent, setShowFullContent] = useState(false);
 
-  // Array of tags
   const tags = [
-    '#PROPERTY', '#SEA', '#PROGRAMMING', '#LIFE STYLE', '#TECHNOLOGY', 
-    '#FRAMEWORK', '#SPORT', '#GAME', '#WFH'
+    '#AI', '#BLOCKCHAIN', '#5G', '#IOT', '#CYBERSECURITY', 
+    '#CLOUD', '#BIGDATA', '#VR', '#AR', '#QUANTUM'
   ];
 
-  // Handle tag click
   const handleTagClick = (tag) => {
     setActiveTag(tag);
   };
 
-  // Handle search button click
   const handleSearch = () => {
     console.log(`Searching for: Year ${year}, Month ${month}, Date ${date}`);
-    // Add your search functionality here
+  };
+
+  const handleLike = () => {
+    setLikes(likes + 1);
+  };
+
+  const handleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+  };
+
+  const handleSlideChange = (direction) => {
+    if (direction === 'next') {
+      setCurrentSlide((prev) => (prev + 1) % relatedArticles.length);
+    } else {
+      setCurrentSlide((prev) => (prev - 1 + relatedArticles.length) % relatedArticles.length);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setViews((prev) => prev + 1);
+    }, 10000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const CommentSection = ({ comments: initialComments }) => {
+    const [localComments, setLocalComments] = useState(initialComments);
+    const [newComment, setNewComment] = useState('');
+  
+    const handleCommentSubmit = (e) => {
+      e.preventDefault();
+      if (newComment.trim()) {
+        const newCommentObj = {
+          id: localComments.length + 1,
+          author: 'Anonymous',
+          content: newComment,
+          likes: 0,
+          replies: [],
+          timestamp: new Date().toISOString(),
+        };
+        setLocalComments([newCommentObj, ...localComments]);
+        setComments([newCommentObj, ...localComments]); // Update the parent state
+        setNewComment('');
+      }
+    };
+  
+    const handleCommentLike = (commentId) => {
+      const updatedComments = localComments.map(comment => 
+        comment.id === commentId ? { ...comment, likes: comment.likes + 1 } : comment
+      );
+      setLocalComments(updatedComments);
+      setComments(updatedComments); // Update the parent state
+    };
+  
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h2 className="text-3xl font-bold mb-6 text-red-600">Comments ({localComments.length})</h2>
+        
+        <form onSubmit={handleCommentSubmit} className="mb-8">
+          <textarea 
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            className="w-full p-3 border-2 border-red-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Add a comment..."
+            rows="3"
+          ></textarea>
+          <button 
+            type="submit" 
+            className="mt-2 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300 ease-in-out transform hover:scale-105"
+          >
+            Post Comment
+          </button>
+        </form>
+  
+        <div className="space-y-6">
+          {localComments.map((comment) => (
+            <div key={comment.id} className="bg-gray-100 p-4 rounded-lg transition-all duration-300 hover:shadow-md">
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white font-bold mr-3">
+                    {comment.author[0].toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="font-bold text-red-600">{comment.author}</p>
+                    <p className="text-xs text-gray-500">{new Date(comment.timestamp).toLocaleString()}</p>
+                  </div>
+                </div>
+                <button className="text-gray-500 hover:text-red-600 transition-colors duration-300">
+                  <Flag size={16} />
+                </button>
+              </div>
+              <p className="text-gray-800 mb-3">{comment.content}</p>
+              <div className="flex items-center space-x-4 text-sm">
+                <button 
+                  className="flex items-center space-x-1 text-gray-600 hover:text-red-600 transition-colors duration-300"
+                  onClick={() => handleCommentLike(comment.id)}
+                >
+                  <Heart size={16} className={comment.likes > 0 ? 'fill-current text-red-600' : ''} />
+                  <span>{comment.likes}</span>
+                </button>
+                <button className="flex items-center space-x-1 text-gray-600 hover:text-red-600 transition-colors duration-300">
+                  <MessageSquare size={16} />
+                  <span>{comment.replies.length}</span>
+                </button>
+                <button className="flex items-center space-x-1 text-gray-600 hover:text-red-600 transition-colors duration-300">
+                  <Share2 size={16} />
+                  <span>Share</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="container mx-auto px-4 lg:px-0 font-sans">
+    <div className="container mx-auto px-4 lg:px-0 font-sans bg-gray-100">
       <div className="flex flex-col lg:flex-row">
-        {/* Main content */}
-        <main className="lg:w-2/3 lg:pr-8">
-          <h1 className="text-3xl font-bold mb-2">These Are the 5 Big Tech Stories to Watch in 2017</h1>
-          <p className="text-gray-600 mb-4">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quae, hic.</p>
-          <div className="mb-4 flex items-center">
-            <img 
-              src="/images/gallery/g1.jpg" 
-              alt="John Doe" 
-              className="w-10 h-10 rounded-full mr-2" 
-            />
-            <span className="text-gray-600">By John Doe, December 09, 2016 in Business</span>
+        <main className="lg:w-2/3 lg:pr-8 bg-white p-6 rounded-lg shadow-lg">
+          <h1 className="text-4xl font-bold mb-2">The 5 Biggest Tech Trends to Watch in 2024</h1>
+          <p className="text-gray-600 mb-4 text-lg">Exploring the cutting-edge innovations shaping our digital future</p>
+          
+          <div className="mb-6 flex items-center justify-between border-b pb-4">
+            <div className="flex items-center">
+              <img src="/images/popular/pop3.jpg" alt="John Doe" className="w-12 h-12 rounded-full mr-4" />
+              <div>
+                <span className="text-gray-800 font-semibold">By John Doe</span>
+                <div className="flex items-center text-sm text-gray-500">
+                  <Calendar size={16} className="mr-1" />
+                  <span>January 15, 2024</span>
+                  <Tag size={16} className="ml-4 mr-1" />
+                  <span>Technology</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button onClick={handleLike} className="flex items-center space-x-1 text-gray-600 hover:text-red-600">
+                <Heart size={20} className={likes > 1523 ? 'fill-current text-red-600' : ''} />
+                <span>{likes}</span>
+              </button>
+              <button onClick={handleBookmark} className={`text-gray-600 hover:text-yellow-500 ${isBookmarked ? 'text-yellow-500' : ''}`}>
+                <Bookmark size={20} className={isBookmarked ? 'fill-current' : ''} />
+              </button>
+              <button className="text-gray-600 hover:text-blue-600">
+                <Share2 size={20} />
+              </button>
+              <div className="flex items-center text-gray-600">
+                <Eye size={20} className="mr-1" />
+                <span>{views}</span>
+              </div>
+            </div>
           </div>
           {/* Image with hover effect */}
           <img 
@@ -72,213 +221,100 @@ const BlogPost = () => {
 <p>Even the all-powerful Pointing has no control over the blind texts; it is an almost unorthographic life, full of the unknown and the unpredictable. In the realm of text and typography, 'blind texts' often refer to placeholder content used to fill space and demonstrate the visual form of a document or a typeface without relying on meaningful content. This concept highlights the tension between form and function, showing how design elements can sometimes overpower the content they are meant to support. Our blog delves into this fascinating interplay, exploring how design choices can influence our perception and understanding of text, and how the invisible forces of design shape our interactions with the written word.</p>{/* Rest of the article content */}
           </article>
 
-          {/* Comments section */}
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">Comments:</h2>
-            {/* Comment components */}
-          </div>
+          <CommentSection comments={comments} />
 
-          {/* Leave a reply form */}
-          <form className="mt-8 p-6 rounded-lg shadow-md bg-white">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">Leave a Reply</h2>
-            <p className="text-gray-700 mb-6 text-sm">Your email address will not be published. Required fields are marked *</p>
-            <div className="mb-6">
-              <label className="block mb-2 text-gray-800 text-sm font-medium">Comment</label>
-              <textarea 
-                className="w-full border border-gray-300 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 resize-none" 
-                rows="5"
-              ></textarea>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label className="block mb-2 text-gray-800 text-sm font-medium">Name *</label>
-                <input 
-                  type="text" 
-                  className="w-full border border-gray-300 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600" 
-                />
-              </div>
-              <div>
-                <label className="block mb-2 text-gray-800 text-sm font-medium">Email *</label>
-                <input 
-                  type="email" 
-                  className="w-full border border-gray-300 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600" 
-                />
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Related Articles</h2>
+            <div className="relative">
+              <button onClick={() => handleSlideChange('prev')} className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md z-10">
+                <ChevronLeft size={24} />
+              </button>
+              <button onClick={() => handleSlideChange('next')} className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md z-10">
+                <ChevronRight size={24} />
+              </button>
+              <div className="overflow-hidden">
+                <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
+                  {relatedArticles.map((article, index) => (
+                    <div key={index} className="w-full flex-shrink-0 px-4">
+                      <img src={article.image} alt={article.title} className="w-full h-48 object-cover rounded-lg mb-2" />
+                      <h3 className="font-bold text-lg mb-1">{article.title}</h3>
+                      <p className="text-sm text-gray-600">
+                        <User size={16} className="inline mr-1" />
+                        {article.author} | 
+                        <Calendar size={16} className="inline mx-1" />
+                        {article.date}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-            <div className="mb-6">
-              <label className="block mb-2 text-gray-800 text-sm font-medium">Website</label>
-              <input 
-                type="text" 
-                className="w-full border border-gray-300 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600" 
-              />
-            </div>
-            <div className="mb-6 flex items-center">
-              <input 
-                type="checkbox" 
-                className="mr-2 border-gray-300 rounded" 
-              />
-              <label className="text-gray-700 text-sm">Save my name, email, and website in this browser for the next time I comment.</label>
-            </div>
-            <button 
-              className="bg-red-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-red-600"
-            >
-              POST COMMENT
-            </button>
-          </form>
-
-          {/* You May Also Like section */}
-          <div className="mt-8">
-            
           </div>
         </main>
 
-        {/* Sidebar */}
         <aside className="lg:w-1/3 mt-8 lg:mt-0">
-          {/* Date Filter */}
-          <div className="mb-8">
+          <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
             <h3 className="text-2xl font-bold mb-4">Filter By Date</h3>
-            <div className="flex items-center gap-4">
-            <select 
-  value={year} 
-  onChange={(e) => setYear(e.target.value)} 
-  className="border border-gray-300 p-2 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-600"
->
-  <option value="">Year</option>
-  {[2023, 2022, 2021, 2020].map(y => (
-    <option key={y} value={y}>{y}</option>
-  ))}
-</select>
-
-<select 
-  value={month} 
-  onChange={(e) => setMonth(e.target.value)} 
-  className="border border-gray-300 p-2 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-600"
->
-  <option value="">Month</option>
-  <option value="1">January</option>
-  <option value="2">February</option>
-  <option value="3">March</option>
-  <option value="4">April</option>
-  <option value="5">May</option>
-  <option value="6">June</option>
-  <option value="7">July</option>
-  <option value="8">August</option>
-  <option value="9">September</option>
-  <option value="10">October</option>
-  <option value="11">November</option>
-  <option value="12">December</option>
-</select>
-
-<select 
-  value={date} 
-  onChange={(e) => setDate(e.target.value)} 
-  className="border border-gray-300 p-2 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-600"
->
-  <option value="">Date</option>
-  {[...Array(31).keys()].map(d => (
-    <option key={d} value={d+1}>{d+1}</option>
-  ))}
-</select>
-
+            <div className="flex flex-col space-y-4">
+              <select 
+                value={year} 
+                onChange={(e) => setYear(e.target.value)} 
+                className="border border-gray-300 p-2 rounded-lg"
+              >
+                <option value="">Year</option>
+                {[2024, 2023, 2022, 2021].map(y => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+              <select 
+                value={month} 
+                onChange={(e) => setMonth(e.target.value)} 
+                className="border border-gray-300 p-2 rounded-lg"
+                >
+                <option value="">Month</option>
+                {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((m, i) => (
+                  <option key={i} value={i + 1}>{m}</option>
+                ))}
+              </select>
+              <select 
+                value={date} 
+                onChange={(e) => setDate(e.target.value)} 
+                className="border border-gray-300 p-2 rounded-lg"
+              >
+                <option value="">Date</option>
+                {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
               <button 
                 onClick={handleSearch} 
-                className="bg-red-600 text-white px-4 py-2 rounded-lg ml-4 shadow-md hover:bg-red-700 transition-colors duration-300"
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
               >
                 Search
               </button>
             </div>
           </div>
 
-          {/* Most Read */}
-          <div className="mb-8">
-            <h3 className="text-2xl font-bold mb-8">Most Read</h3>
-            <div className="mb-6 flex items-center hover:shadow-lg transition-shadow duration-200">
-              <img 
-                src="/images/gallery/g1.jpg" 
-                alt="Thumbnail" 
-                className="w-28 h-20 object-cover mr-6 rounded-lg shadow-sm transition-transform transform hover:scale-105" 
-              />
-              <div>
-                <span className="text-red-600 text-base">By David Hall, December 09, 2016</span>
-                <h4 className="font-bold text-lg">6 Best Tips For Building A Good Shipping Boat</h4>
+          <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+            <h3 className="text-2xl font-bold mb-4">Most Read</h3>
+            {[1, 2, 3, 4, 5].map((_, index) => (
+              <div key={index} className="mb-4 flex items-center">
+                <img src="/images/popular/pop2.jpg" alt="Thumbnail" className="w-28 h-20 object-cover mr-4 rounded-lg" />
+                <div>
+                  <span className="text-red-600 text-sm">By David Hall, Jan 20, 2024</span>
+                  <h4 className="font-bold">The Rise of Quantum Computing in Business</h4>
+                </div>
               </div>
-            </div>
-            <div className="mb-6 flex items-center hover:shadow-lg transition-shadow duration-200">
-              <img 
-                src="/images/gallery/g1.jpg" 
-                alt="Thumbnail" 
-                className="w-28 h-20 object-cover mr-6 rounded-lg shadow-sm transition-transform transform hover:scale-105" 
-              />
-              <div>
-                <span className="text-red-600 text-base">By David Hall, December 09, 2016</span>
-                <h4 className="font-bold text-lg">Pembalap Mulai Melaju Kencang</h4>
-              </div>
-            </div>
-            <div className="mb-6 flex items-center hover:shadow-lg transition-shadow duration-200">
-              <img 
-                src="/images/gallery/g1.jpg" 
-                alt="Thumbnail" 
-                className="w-28 h-20 object-cover mr-6 rounded-lg shadow-sm transition-transform transform hover:scale-105" 
-              />
-              <div>
-                <span className="text-red-600 text-base">By David Hall, December 09, 2016</span>
-                <h4 className="font-bold text-lg">Cristian Ronaldo Mulai Mengocek Lawannya</h4>
-              </div>
-            </div>
-            <div className="mb-6 flex items-center hover:shadow-lg transition-shadow duration-200">
-              <img 
-                src="/images/gallery/g1.jpg" 
-                alt="Thumbnail" 
-                className="w-28 h-20 object-cover mr-6 rounded-lg shadow-sm transition-transform transform hover:scale-105" 
-              />
-              <div>
-                <span className="text-red-600 text-base">By David Hall, December 09, 2016</span>
-                <h4 className="font-bold text-lg">Pembalap Mulai Melaju Kencang</h4>
-              </div>
-            </div>
-            <div className="mb-6 flex items-center hover:shadow-lg transition-shadow duration-200">
-              <img 
-                src="/images/gallery/g1.jpg" 
-                alt="Thumbnail" 
-                className="w-28 h-20 object-cover mr-6 rounded-lg shadow-sm transition-transform transform hover:scale-105" 
-              />
-              <div>
-                <span className="text-red-600 text-base">By David Hall, December 09, 2016</span>
-                <h4 className="font-bold text-lg">Pembalap Mulai Melaju Kencang</h4>
-              </div>
-            </div>
-            <div className="mb-6 flex items-center hover:shadow-lg transition-shadow duration-200">
-              <img 
-                src="/images/gallery/g1.jpg" 
-                alt="Thumbnail" 
-                className="w-28 h-20 object-cover mr-6 rounded-lg shadow-sm transition-transform transform hover:scale-105" 
-              />
-              <div>
-                <span className="text-red-600 text-base">By David Hall, December 09, 2016</span>
-                <h4 className="font-bold text-lg">Pembalap Mulai Melaju Kencang</h4>
-              </div>
-            </div>
-            <div className="mb-6 flex items-center hover:shadow-lg transition-shadow duration-200">
-              <img 
-                src="/images/gallery/g1.jpg" 
-                alt="Thumbnail" 
-                className="w-28 h-20 object-cover mr-6 rounded-lg shadow-sm transition-transform transform hover:scale-105" 
-              />
-              <div>
-                <span className="text-red-600 text-base">By David Hall, December 09, 2016</span>
-                <h4 className="font-bold text-lg">Pembalap Mulai Melaju Kencang</h4>
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* Tags */}
-          <div className="mb-8">
-            <h3 className="text-xl font-bold mb-4">Tags</h3>
+          <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+            <h3 className="text-xl font-bold mb-4">Popular Tags</h3>
             <div className="flex flex-wrap">
               {tags.map((tag, index) => (
                 <span
                   key={index}
-                  className={`px-2 py-1 m-1 text-sm cursor-pointer ${activeTag === tag ? 'bg-red-600 text-white' : 'bg-gray-200'}`}
+                  className={`px-3 py-1 m-1 text-sm cursor-pointer rounded-full ${activeTag === tag ? 'bg-red-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
                   onClick={() => handleTagClick(tag)}
                 >
                   {tag}
@@ -287,19 +323,51 @@ const BlogPost = () => {
             </div>
           </div>
 
-          {/* Newsletter */}
-          <div className="mb-8 p-6 rounded-lg shadow-md">
-            <h3 className="text-2xl font-bold mb-4 text-gray-800">Newsletter</h3>
-            <p className="text-gray-700 mb-4">Sign up for free and be the first to get notified about new posts.</p>
-            <div className="flex flex-col md:flex-row items-center">
+          <div className="bg-gradient-to-r from-red-600 to-black p-6 rounded-lg shadow-lg mb-8 text-white">
+            <h3 className="text-2xl font-bold mb-4">Newsletter</h3>
+            <p className="mb-4">Stay updated with our latest tech insights. Subscribe to our newsletter!</p>
+            <form className="flex flex-col">
               <input
                 type="email"
-                className="border border-gray-300 p-3 rounded-lg flex-grow mb-4 md:mb-0 md:mr-4 focus:outline-none focus:ring-2 focus:ring-red-600"
+                className="border border-gray-300 p-2 rounded-lg mb-2 text-gray-800"
                 placeholder="Enter your email"
               />
-              <button className="bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-red-700 transition-colors duration-300">
-                SIGN UP
+              <button className="bg-white text-red-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                SUBSCRIBE
               </button>
+            </form>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+            <h3 className="text-2xl font-bold mb-4">Trending Topics</h3>
+            <ul className="space-y-2">
+              {['AI Ethics', 'Cybersecurity', 'Renewable Tech', 'Space Exploration', 'Biotechnology'].map((topic, index) => (
+                <li key={index} className="flex items-center">
+                  <div className="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center mr-3">
+                    {index + 1}
+                  </div>
+                  <span className="text-lg">{topic}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+            <h3 className="text-2xl font-bold mb-4">About the Author</h3>
+            <div className="flex items-center mb-4">
+              <img src="/images/popular/pop1.jpg" alt="John Doe" className="w-20 h-20 rounded-full mr-4" />
+              <div>
+                <h4 className="font-bold text-lg">John Doe</h4>
+                <p className="text-gray-600">Tech Journalist & Futurist</p>
+              </div>
+            </div>
+            <p className="text-gray-700 mb-4">
+              John Doe is a renowned tech journalist with over a decade of experience covering emerging technologies and their impact on society. He's a regular contributor to leading tech publications and a frequent speaker at industry conferences.
+            </p>
+            <div className="flex space-x-2">
+              <a href="#" className="text-red-600 hover:underline">Twitter</a>
+              <a href="#" className="text-red-600 hover:underline">LinkedIn</a>
+              <a href="#" className="text-red-600 hover:underline">Website</a>
             </div>
           </div>
         </aside>

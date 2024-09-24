@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Clock, User, Cloud, Wind, Droplet, Mail } from 'lucide-react';
-import WeatherWidget from './WeatherWidgets';
-
 
 const NewsTicker = ({ items }) => (
   <div className="bg-red-600 text-white py-2 px-4 overflow-hidden">
@@ -18,8 +16,22 @@ const NewsTicker = ({ items }) => (
   </div>
 );
 
-<WeatherWidget/>
-
+const WeatherWidget = () => (
+  <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+    <div className="flex justify-between items-center mb-4">
+      <div>
+        <h3 className="text-2xl font-bold">33°C</h3>
+        <p className="text-gray-600">Clear sky</p>
+      </div>
+      <Cloud size={48} className="text-blue-500" />
+    </div>
+    <p className="text-lg font-semibold mb-2">Islamabad</p>
+    <div className="flex justify-between text-sm text-gray-600">
+      <span className="flex items-center"><Wind size={14} className="mr-1" /> 2.1 m/s</span>
+      <span className="flex items-center"><Droplet size={14} className="mr-1" /> 45%</span>
+    </div>
+  </div>
+);
 
 const SmallArticleCard = ({ article, index }) => (
   <motion.div
@@ -48,7 +60,7 @@ const FeaturedArticle = ({ article }) => (
     <motion.img 
       src={article.image} 
       alt="" 
-      className="w-full h-96 object-cover mb-4 rounded-lg"
+      className="w-full h-48 sm:h-64 md:h-96 object-cover mb-4 rounded-lg"
       initial={{ opacity: 0, scale: 1.05 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
@@ -59,7 +71,7 @@ const FeaturedArticle = ({ article }) => (
       transition={{ duration: 0.5, delay: 0.2 }}
     >
       <span className="text-sm font-medium text-red-600 mb-2 block">{article.category}</span>
-      <h2 className="text-3xl font-bold mb-3">{article.title}</h2>
+      <h2 className="text-2xl sm:text-3xl font-bold mb-3">{article.title}</h2>
       <p className="text-gray-600 mb-4">{article.excerpt}</p>
       <div className="flex items-center text-sm text-gray-500">
         <User size={14} className="mr-1" />
@@ -122,7 +134,6 @@ const SecondaryArticleCard = ({ article, index }) => (
   </motion.div>
 );
 
-
 const AdWidget = () => (
   <div className="bg-gray-200 p-4 rounded-lg mb-8">
     <img src="/images/life/life1.jpg" alt="Advertisement" className="w-full" />
@@ -140,7 +151,6 @@ const PopularArticles = ({ articles }) => (
     ))}
   </div>
 );
-
 
 const NewsletterSidebar = () => {
   const [email, setEmail] = useState('');
@@ -185,6 +195,7 @@ const NewsletterSidebar = () => {
     </motion.div>
   );
 };
+
 const CategorizedLatestNews = ({ articles }) => {
   const categorizedArticles = articles.reduce((acc, article) => {
     if (!acc[article.category]) {
@@ -207,6 +218,7 @@ const CategorizedLatestNews = ({ articles }) => {
     </>
   );
 };
+
 const App = () => {
   const tickerItems = [
     "Breaking: Major earthquake strikes Pacific region",
@@ -247,7 +259,6 @@ const App = () => {
       date: "10 hours ago"
     }
   ];
-
 
   const featuredArticle = {
     title: "The Impact of Cultural Diversity on Fashion Trends",
@@ -300,31 +311,31 @@ const App = () => {
     <div className="bg-gray-100 min-h-screen">
       <NewsTicker items={tickerItems} />
       <main className="container mx-auto py-8 px-4">
-        <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-3">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div className="md:col-span-3">
             <WeatherWidget />
             <h2 className="text-2xl font-bold my-6">LATEST</h2>
             <CategorizedLatestNews articles={latestArticles} />
           </div>
-          <div className="col-span-6">
+          <div className="md:col-span-6">
             <AnimatePresence mode="wait">
               <FeaturedArticle key={currentArticleIndex} article={allArticles[currentArticleIndex]} />
             </AnimatePresence>
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {secondaryArticles.map((article, index) => (
                 <SecondaryArticleCard key={index} article={article} index={index} />
               ))}
             </div>
           </div>
-          <div className="col-span-3">
+          <div className="md:col-span-3">
             <NewsletterSidebar />
             <AdWidget />
             <PopularArticles articles={popularArticles} />
-            
           </div>
         </div>
       </main>
     </div>
   );
 };
+
 export default App;

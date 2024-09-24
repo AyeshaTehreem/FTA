@@ -4,7 +4,7 @@ import axios from 'axios';
 import { UserContext } from "../../../UserContext"; // Ensure the path is correct
 
 const Header = () => {
-  const { user, logout } = useContext(UserContext); // Access user context
+  const { user, logout } = useContext(UserContext);
   const [showMegamenu, setShowMegamenu] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const navigate = useNavigate();
@@ -35,8 +35,34 @@ const Header = () => {
     }
   };
 
+  const TopBar = ({ isSidebar = false }) => (
+    <div className={`flex ${isSidebar ? 'flex-col space-y-4' : 'flex-wrap justify-between items-center'} py-2 ${!isSidebar && 'border-b border-gray-200'}`}>
+      <div className={`flex ${isSidebar ? 'flex-col' : 'space-x-4'} mb-2 sm:mb-0`}>
+        <a href="#" className="text-gray-600 hover:text-gray-800"><i className="fab fa-facebook-f"></i></a>
+        <a href="#" className="text-gray-600 hover:text-gray-800"><i className="fab fa-twitter"></i></a>
+        <a href="#" className="text-gray-600 hover:text-gray-800"><i className="fab fa-instagram"></i></a>
+        <a href="#" className="text-gray-600 hover:text-gray-800"><i className="fab fa-youtube"></i></a>
+        <a href="#" className="text-gray-600 hover:text-gray-800"><i className="fab fa-vimeo-v"></i></a>
+      </div>
+      <div className={`flex ${isSidebar ? 'flex-col space-y-2' : 'flex-wrap space-x-2 sm:space-x-4'} text-xs sm:text-sm`}>
+        <Link to="/contact" className="text-gray-600 hover:text-gray-800">CONTACT</Link>
+        <Link to="/donation" className="text-gray-600 hover:text-gray-800">DONATION</Link>
+        <Link to="/blogpost" className="text-gray-600 hover:text-gray-800">BLOGS</Link>
+        <div className="text-gray-600">CURRENCY: USD</div>
+        <div className="text-gray-600">WISHLIST: 12</div>
+        <Link to="/editorblog" className="text-gray-600 hover:text-gray-800">ADD BLOG</Link>
+        <div className="text-gray-600">FAKE NEWS</div>
+        {user.isLoggedIn ? (
+          <button onClick={handleLogout} className="text-gray-600 hover:text-gray-800">LOGOUT</button>
+        ) : (
+          <Link to="/login" className="text-gray-600 hover:text-gray-800">SIGN UP OR LOGIN</Link>
+        )}
+      </div>
+    </div>
+  );
+
   return (
-    <header className="bg-white shadow-md">
+    <header className="bg-white shadow-md relative">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-2 border-b border-gray-200">
           <div className="flex space-x-4">
@@ -81,16 +107,23 @@ const Header = () => {
           </div>
         </div>
         <div className="flex justify-between items-center py-4">
-          <button className="text-2xl">☰</button>
-          <Link to="/" className="text-4xl font-bold">
-            <span className="text-gray-800">FTA</span>
-            <span className="text-red-600">TIMES.</span>
-          </Link>
+          <div className="flex items-center">
+            <button 
+              className="text-2xl mr-4 sm:hidden"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              ☰
+            </button>
+            <Link to="/" className="center text-4xl font-bold  ">
+              <span className="center text-gray-800  ">FTA</span>
+              <span className="center text-red-600  ">TIMES.</span>
+            </Link>
+          </div>
           <div className="flex items-center space-x-4">
-            <div className="text-2xl">
+            <div className="text-sm sm:text-lg">
               {currentDate.toLocaleDateString()} {currentDate.toLocaleTimeString()}
             </div>
-            <select className="bg-gray-100 rounded px-2 py-1">
+            <select className="bg-gray-100 rounded px-2 py-1 text-sm">
               <option>En</option>
             </select>
           </div>
@@ -130,6 +163,11 @@ const Header = () => {
                 FAQ
               </Link>
             </li>
+            <li><Link to="/pages" className="text-sm font-semibold text-red-600">PAGES ▼</Link></li>
+            <li><Link to="/aboutpage" className="text-sm font-semibold text-gray-800 hover:text-red-600">ABOUT US</Link></li>
+            <li><Link to="/typography" className="text-sm font-semibold text-gray-800 hover:text-red-600">TYPOGRAPHY</Link></li>
+            <li><Link to="/contact" className="text-sm font-semibold text-gray-800 hover:text-red-600">CONTACT</Link></li>
+            <li><Link to="/faq" className="text-sm font-semibold text-gray-800 hover:text-red-600">FAQ</Link></li>
             <li>
               <button className="text-gray-600 hover:text-gray-800">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
