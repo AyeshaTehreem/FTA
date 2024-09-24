@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 
 import 'font-awesome/css/font-awesome.min.css';
+=======
+>>>>>>> 61690f9d8830f396e6b7d907f908bcb16f90bd56
 import React, { useState, useEffect } from 'react';
 import { Heart, Share2, MessageSquare, Bookmark, ThumbsUp, Eye, Clock, Tag, User, Calendar, ChevronLeft, ChevronRight, Flag } from 'lucide-react';
 
