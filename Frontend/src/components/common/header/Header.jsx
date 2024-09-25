@@ -93,10 +93,26 @@ const Header = () => {
       <div className={`flex ${isSidebar ? 'flex-col space-y-2' : 'flex-wrap space-x-2 sm:space-x-4'} text-xs sm:text-sm`}>
         <Link to="/contact" className="text-gray-600 hover:text-gray-800">CONTACT</Link>
         <Link to="/donation" className="text-gray-600 hover:text-gray-800">DONATION</Link>
-        <Link to="/blogpost" className="text-gray-600 hover:text-gray-800">BLOGS</Link>
-        <div className="text-gray-600">CURRENCY: USD</div>
-        <div className="text-gray-600">WISHLIST: 12</div>
-        <Link to="/editorblog" className="text-gray-600 hover:text-gray-800">ADD BLOG</Link>
+        <Link to="/showallblog" className="text-gray-600 hover:text-gray-800">BLOGS</Link>
+        {user?.isLoggedIn && (
+              <Link to="/verifyimage" className="text-sm text-gray-600 hover:text-gray-800">VERIFY NEWS</Link>
+            )}
+            {user?.isLoggedIn && user.role === 'verifier' && (
+              <Link to="/pendingimages" className="text-sm text-gray-600 hover:text-gray-800">
+                PENDING VERIFICATIONS
+              </Link>
+            )}
+            {user?.isLoggedIn && (
+              <Link to="/report" className="text-sm text-gray-600 hover:text-gray-800">
+                REPORTS
+              </Link>
+            )}
+            
+            {user?.isLoggedIn && user.role === 'editor' && (
+              <Link to="/editorblog" className="text-sm text-gray-600 hover:text-gray-800">ADD BLOG</Link>
+            )}
+      
+        
         <div className="text-gray-600">FAKE NEWS</div>
         {user.isLoggedIn ? (
           <button onClick={handleLogout} className="text-gray-600 hover:text-gray-800">LOGOUT</button>

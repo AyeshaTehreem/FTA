@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-
 import 'font-awesome/css/font-awesome.min.css';
-=======
->>>>>>> 61690f9d8830f396e6b7d907f908bcb16f90bd56
 import React, { useState, useEffect } from 'react';
 import { Heart, Share2, MessageSquare, Bookmark, ThumbsUp, Eye, Clock, Tag, User, Calendar, ChevronLeft, ChevronRight, Flag } from 'lucide-react';
 
@@ -23,12 +19,12 @@ const BlogPost = () => {
   const [relatedArticles, setRelatedArticles] = useState([
     { title: 'The Future of AI in 2024', author: 'Sarah Connor', date: '2024-01-15', image: "/images/life/life1.jpg" },
     { title: 'Blockchain Revolution in Finance', author: 'Mark Zuckerberg', date: '2024-01-18', image: "/images/life/life3.jpg" },
-    { title: '5G and Its Impact on IoT', author: 'Elon Musk', date: '2024-01-20', image:"/images/life/life3.jpg" },
+    { title: '5G and Its Impact on IoT', author: 'Elon Musk', date: '2024-01-20', image: "/images/life/life3.jpg" },
   ]);
   const [showFullContent, setShowFullContent] = useState(false);
 
   const tags = [
-    '#AI', '#BLOCKCHAIN', '#5G', '#IOT', '#CYBERSECURITY', 
+    '#AI', '#BLOCKCHAIN', '#5G', '#IOT', '#CYBERSECURITY',
     '#CLOUD', '#BIGDATA', '#VR', '#AR', '#QUANTUM'
   ];
 
@@ -67,7 +63,7 @@ const BlogPost = () => {
   const CommentSection = ({ comments: initialComments }) => {
     const [localComments, setLocalComments] = useState(initialComments);
     const [newComment, setNewComment] = useState('');
-  
+
     const handleCommentSubmit = (e) => {
       e.preventDefault();
       if (newComment.trim()) {
@@ -84,35 +80,35 @@ const BlogPost = () => {
         setNewComment('');
       }
     };
-  
+
     const handleCommentLike = (commentId) => {
-      const updatedComments = localComments.map(comment => 
+      const updatedComments = localComments.map(comment =>
         comment.id === commentId ? { ...comment, likes: comment.likes + 1 } : comment
       );
       setLocalComments(updatedComments);
       setComments(updatedComments); // Update the parent state
     };
-  
+
     return (
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold mb-6 text-red-600">Comments ({localComments.length})</h2>
-        
+
         <form onSubmit={handleCommentSubmit} className="mb-8">
-          <textarea 
+          <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             className="w-full p-3 border-2 border-red-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-red-600"
             placeholder="Add a comment..."
             rows="3"
           ></textarea>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="mt-2 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300 ease-in-out transform hover:scale-105"
           >
             Post Comment
           </button>
         </form>
-  
+
         <div className="space-y-6">
           {localComments.map((comment) => (
             <div key={comment.id} className="bg-gray-100 p-4 rounded-lg transition-all duration-300 hover:shadow-md">
@@ -132,7 +128,7 @@ const BlogPost = () => {
               </div>
               <p className="text-gray-800 mb-3">{comment.content}</p>
               <div className="flex items-center space-x-4 text-sm">
-                <button 
+                <button
                   className="flex items-center space-x-1 text-gray-600 hover:text-red-600 transition-colors duration-300"
                   onClick={() => handleCommentLike(comment.id)}
                 >
@@ -161,7 +157,7 @@ const BlogPost = () => {
         <main className="lg:w-2/3 lg:pr-8 bg-white p-6 rounded-lg shadow-lg">
           <h1 className="text-4xl font-bold mb-2">The 5 Biggest Tech Trends to Watch in 2024</h1>
           <p className="text-gray-600 mb-4 text-lg">Exploring the cutting-edge innovations shaping our digital future</p>
-          
+
           <div className="mb-6 flex items-center justify-between border-b pb-4">
             <div className="flex items-center">
               <img src="/images/popular/pop3.jpg" alt="John Doe" className="w-12 h-12 rounded-full mr-4" />
@@ -193,35 +189,35 @@ const BlogPost = () => {
             </div>
           </div>
           {/* Image with hover effect */}
-          <img 
-            src="/images/gallery/g1.jpg" 
-            alt="White House Press Conference" 
-            className="mb-4 w-full rounded-lg shadow-md transition-all duration-300 transform hover:scale-101 hover:brightness-105 hover:shadow-xl hover:rounded-2xl" 
+          <img
+            src="/images/gallery/g1.jpg"
+            alt="White House Press Conference"
+            className="mb-4 w-full rounded-lg shadow-md transition-all duration-300 transform hover:scale-101 hover:brightness-105 hover:shadow-xl hover:rounded-2xl"
           />
-<div className="mb-4 flex items-center">
-  <span className="text-gray-600 mr-4 font-bold hover:text-red-600 cursor-pointer">15.5k views</span>
-  <span className="text-gray-600 mr-4 flex items-center font-bold hover:text-red-600 cursor-pointer">
-    <i className="fa-regular fa-heart text-red-600 mr-1"></i>
-    1.2k Likes
-  </span>
-  <span className="text-gray-600 mr-4 flex items-center font-bold hover:text-red-600 cursor-pointer">
-    <i className="fa-regular fa-comment text-red-600 mr-1"></i>
-    320 Comments
-  </span>
-  <button className="bg-red-600 text-white px-3 py-1 rounded mr-2 hover:bg-red-700">Facebook</button>
-  <button className="bg-red-500 text-white px-3 py-1 rounded mr-2 hover:bg-red-600">Twitter</button>
-  <button className="bg-green-500 text-white px-3 py-1 rounded mr-2 hover:bg-green-600">Whatsapp</button>
-  <button className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600">Telegram</button>
-  <button className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800">LinkedIn</button>
-</div>
+          <div className="mb-4 flex items-center">
+            <span className="text-gray-600 mr-4 font-bold hover:text-red-600 cursor-pointer">15.5k views</span>
+            <span className="text-gray-600 mr-4 flex items-center font-bold hover:text-red-600 cursor-pointer">
+              <i className="fa-regular fa-heart text-red-600 mr-1"></i>
+              1.2k Likes
+            </span>
+            <span className="text-gray-600 mr-4 flex items-center font-bold hover:text-red-600 cursor-pointer">
+              <i className="fa-regular fa-comment text-red-600 mr-1"></i>
+              320 Comments
+            </span>
+            <button className="bg-red-600 text-white px-3 py-1 rounded mr-2 hover:bg-red-700">Facebook</button>
+            <button className="bg-red-500 text-white px-3 py-1 rounded mr-2 hover:bg-red-600">Twitter</button>
+            <button className="bg-green-500 text-white px-3 py-1 rounded mr-2 hover:bg-green-600">Whatsapp</button>
+            <button className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600">Telegram</button>
+            <button className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800">LinkedIn</button>
+          </div>
 
 
 
 
 
           <article className="prose lg:prose-xl">
-           
-<p>Even the all-powerful Pointing has no control over the blind texts; it is an almost unorthographic life, full of the unknown and the unpredictable. In the realm of text and typography, 'blind texts' often refer to placeholder content used to fill space and demonstrate the visual form of a document or a typeface without relying on meaningful content. This concept highlights the tension between form and function, showing how design elements can sometimes overpower the content they are meant to support. Our blog delves into this fascinating interplay, exploring how design choices can influence our perception and understanding of text, and how the invisible forces of design shape our interactions with the written word.</p>{/* Rest of the article content */}
+
+            <p>Even the all-powerful Pointing has no control over the blind texts; it is an almost unorthographic life, full of the unknown and the unpredictable. In the realm of text and typography, 'blind texts' often refer to placeholder content used to fill space and demonstrate the visual form of a document or a typeface without relying on meaningful content. This concept highlights the tension between form and function, showing how design elements can sometimes overpower the content they are meant to support. Our blog delves into this fascinating interplay, exploring how design choices can influence our perception and understanding of text, and how the invisible forces of design shape our interactions with the written word.</p>{/* Rest of the article content */}
           </article>
 
           <CommentSection comments={comments} />
@@ -243,7 +239,7 @@ const BlogPost = () => {
                       <h3 className="font-bold text-lg mb-1">{article.title}</h3>
                       <p className="text-sm text-gray-600">
                         <User size={16} className="inline mr-1" />
-                        {article.author} | 
+                        {article.author} |
                         <Calendar size={16} className="inline mx-1" />
                         {article.date}
                       </p>
@@ -259,9 +255,9 @@ const BlogPost = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
             <h3 className="text-2xl font-bold mb-4">Filter By Date</h3>
             <div className="flex flex-col space-y-4">
-              <select 
-                value={year} 
-                onChange={(e) => setYear(e.target.value)} 
+              <select
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
                 className="border border-gray-300 p-2 rounded-lg"
               >
                 <option value="">Year</option>
@@ -269,19 +265,19 @@ const BlogPost = () => {
                   <option key={y} value={y}>{y}</option>
                 ))}
               </select>
-              <select 
-                value={month} 
-                onChange={(e) => setMonth(e.target.value)} 
+              <select
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
                 className="border border-gray-300 p-2 rounded-lg"
-                >
+              >
                 <option value="">Month</option>
                 {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((m, i) => (
                   <option key={i} value={i + 1}>{m}</option>
                 ))}
               </select>
-              <select 
-                value={date} 
-                onChange={(e) => setDate(e.target.value)} 
+              <select
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
                 className="border border-gray-300 p-2 rounded-lg"
               >
                 <option value="">Date</option>
@@ -289,8 +285,8 @@ const BlogPost = () => {
                   <option key={d} value={d}>{d}</option>
                 ))}
               </select>
-              <button 
-                onClick={handleSearch} 
+              <button
+                onClick={handleSearch}
                 className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
               >
                 Search

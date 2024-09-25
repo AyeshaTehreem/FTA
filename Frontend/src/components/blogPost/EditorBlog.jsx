@@ -1,38 +1,62 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const BlogPostForm = () => {
   const [title, setTitle] = useState('');
   const [image, setImage] = useState(null);
   const [description, setDescription] = useState('');
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [category, setCategory] = useState('');
+  const [uploading, setUploading] = useState(false); // State to track uploading status
+  const [uploadStatus, setUploadStatus] = useState('');
+  const [error, setError] = useState('');
 
-  const tags = [
-    '#PROPERTY', '#SEA', '#PROGRAMMING', '#LIFE STYLE', '#TECHNOLOGY',
-    '#FRAMEWORK', '#SPORT', '#GAME', '#WFH'
+  const categories = [
+    'Property', 'Sea', 'Programming', 'Life Style', 'Technology',
+    'Framework', 'Sport', 'Game', 'WFH'
   ];
 
   const handleImageChange = (e) => {
-    setImage(URL.createObjectURL(e.target.files[0]));
+    setImage(e.target.files[0]); // Set the selected image file
   };
 
-  const handleTagToggle = (tag) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag)
-        ? prev.filter((t) => t !== tag)
-        : [...prev, tag]
-    );
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const blogPostData = {
-      title,
-      image,
-      description,
-      tags: selectedTags
-    };
-    console.log('Submitting blog post:', blogPostData);
-    // Submit to backend or API here
+    setUploadStatus('');
+    setError('');
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('content', description);
+    formData.append('categories', JSON.stringify([category])); // Convert category to JSON string
+    if (image) {
+      formData.append('image', image); // Append image if selected
+    } else {
+      setError('Please select an image to upload.');
+      return;
+    }
+
+    try {
+      setUploading(true); // Set uploading state to true
+      const response = await axios.post('http://localhost:5000/blogs/create', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Ensure multipart/form-data is set
+        },
+        withCredentials: true, // Include cookies for session authentication
+      });
+
+      console.log('Blog post created:', response.data);
+      setUploadStatus('Blog post uploaded successfully!');
+      // Reset the form after successful submission
+      setTitle('');
+      setDescription('');
+      setCategory('');
+      setImage(null);
+    } catch (error) {
+      console.error('Error creating blog post:', error.response?.data || error.message);
+      setError('Failed to upload blog post. Please try again.');
+    } finally {
+      setUploading(false); // Reset uploading state
+    }
   };
 
   return (
@@ -41,7 +65,7 @@ const BlogPostForm = () => {
         Create a New Blog Post
       </h1>
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-xl max-w-3xl mx-auto">
-        
+
         {/* Title Field */}
         <div className="mb-8">
           <label className="block text-lg text-gray-900 font-semibold mb-2">Post Title</label>
@@ -51,6 +75,7 @@ const BlogPostForm = () => {
             onChange={(e) => setTitle(e.target.value)}
             className="w-full border border-red-400 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition duration-300 shadow-sm"
             placeholder="Enter the post title"
+            required
           />
         </div>
 
@@ -65,7 +90,7 @@ const BlogPostForm = () => {
           />
           {image && (
             <div className="mt-4">
-              <img src={image} alt="Preview" className="w-full h-64 object-cover rounded-lg shadow-lg hover:shadow-xl transition-all duration-300" />
+              <img src={URL.createObjectURL(image)} alt="Preview" className="w-full h-64 object-cover rounded-lg shadow-lg hover:shadow-xl transition-all duration-300" />
             </div>
           )}
         </div>
@@ -79,39 +104,42 @@ const BlogPostForm = () => {
             className="w-full border border-red-400 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition duration-300 shadow-sm"
             rows="8"
             placeholder="Write the blog post content"
+            required
           ></textarea>
         </div>
 
-        {/* Tags Field */}
+        {/* Category Dropdown */}
         <div className="mb-8">
-          <label className="block text-lg text-gray-900 font-semibold mb-4">Select Tags (Categories)</label>
-          <div className="flex flex-wrap gap-3">
-            {tags.map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => handleTagToggle(tag)}
-                className={`px-4 py-2 rounded-full border ${
-                  selectedTags.includes(tag)
-                    ? 'bg-red-600 text-white border-red-600'
-                    : 'bg-gray-200 text-gray-800 border-gray-300'
-                } hover:bg-red-500 hover:text-white transition-colors duration-300 ease-in-out shadow-md`}
-              >
-                {tag}
-              </button>
+          <label className="block text-lg text-gray-900 font-semibold mb-4">Select Category</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full border border-red-400 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 transition duration-300 shadow-sm"
+            required
+          >
+            <option value="" disabled>Select a category</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
             ))}
-          </div>
+          </select>
         </div>
 
         {/* Submit Button */}
         <div className="text-center">
           <button
             type="submit"
-            className="bg-red-600 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-2xl hover:bg-red-500 transition-all duration-300 transform hover:scale-105"
+            className={`bg-red-600 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-2xl hover:bg-red-500 transition-all duration-300 transform hover:scale-105 ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={uploading}
           >
-            POST ARTICLE
+            {uploading ? 'Uploading...' : 'POST ARTICLE'}
           </button>
         </div>
+
+        {/* Upload Status and Error Messages */}
+        {uploadStatus && <p className="text-green-600 text-center mt-4">{uploadStatus}</p>}
+        {error && <p className="text-red-600 text-center mt-4">{error}</p>}
       </form>
     </div>
   );

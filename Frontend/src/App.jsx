@@ -12,6 +12,7 @@ import NotAllowed from './components/loginPage/NotAllowed';
 import Contact from './components/contactPage/Contact';
 import BlogPost from './components/blogPost/BlogPost';
 import EditorBlog from './components/blogPost/EditorBlog';
+import ShowAllBlogs from './components/blogPost/ShowAllBlogs';
 import AboutPage from './components/about/About';
 import LoadingScreen from './components/LoadingScreen';
 import ThemeToggle from './components/ThemeToggle';
@@ -60,7 +61,8 @@ const AppRoutes = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/notallowed" element={<NotAllowed />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/blogpost" element={<BlogPost />} />
+            <Route path="/showallblog" element={<ShowAllBlogs />} />
+            <Route path="/blog/:id" element={<BlogPost />} /> {/* Add this line */}
             <Route
               path="/editorblog"
               element={
