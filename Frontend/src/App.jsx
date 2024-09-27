@@ -17,8 +17,8 @@ import AboutPage from './components/about/About';
 import LoadingScreen from './components/LoadingScreen';
 import ThemeToggle from './components/ThemeToggle';
 
-const AppRoutes = () => {
-  const { user } = useContext(UserContext); // Make sure to use user context here
+const App = () => {
+  const { user } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -29,94 +29,67 @@ const AppRoutes = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      fetch('http://localhost:5000/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({}),
-        keepalive: true,
-      });
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
-
-  return (
-    <>
-      {isLoading ? (
-        <LoadingScreen />
-      ) : (
-        <>
-          <Header />
-          <ThemeToggle />
-          <Routes>
-            <Route path="/" element={<Homepages />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/notallowed" element={<NotAllowed />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/showallblog" element={<ShowAllBlogs />} />
-            <Route path="/blog/:id" element={<BlogPost />} /> {/* Add this line */}
-            <Route
-              path="/editorblog"
-              element={
-                user?.isLoggedIn && user?.role === 'editor' ? (
-                  <EditorBlog />
-                ) : (
-                  <Navigate to="/notallowed" />
-                )
-              }
-            />
-            <Route path="/aboutpage" element={<AboutPage />} />
-            <Route
-              path="/pendingimages"
-              element={
-                user?.isLoggedIn && user?.role === 'verifier' ? (
-                  <PendingImage />
-                ) : (
-                  <Navigate to="/notallowed" />
-                )
-              }
-            />
-            <Route
-              path="/verifyimage"
-              element={
-                user?.isLoggedIn ? (
-                  <VerifyImage />
-                ) : (
-                  <Navigate to="/notallowed" />
-                )
-              }
-            />
-            <Route
-              path="/report"
-              element={
-                user?.isLoggedIn ? (
-                  <Report />
-                ) : (
-                  <Navigate to="/notallowed" />
-                )
-              }
-            />
-          </Routes>
-        </>
-      )}
-    </>
-  );
-};
-
-const App = () => {
   return (
     <UserProvider>
       <Router>
-        <AppRoutes />
-        <Footer />
+        {isLoading ? (
+          <LoadingScreen />
+        ) : (
+          <>
+            <Header />
+            <ThemeToggle />
+            <Routes>
+              <Route path="/" element={<Homepages />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/notallowed" element={<NotAllowed />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/showallblog" element={<ShowAllBlogs />} />
+              <Route path="/blog/:id" element={<BlogPost />} />
+              <Route
+                path="/editorblog"
+                element={
+                  user?.isLoggedIn && user?.role === 'editor' ? (
+                    <EditorBlog />
+                  ) : (
+                    <NotAllowed />
+                  )
+                }
+              />
+              <Route path="/aboutpage" element={<AboutPage />} />
+              <Route
+                path="/pendingimages"
+                element={
+                  user?.isLoggedIn && user?.role === 'verifier' ? (
+                    <PendingImage />
+                  ) : (
+                    <NotAllowed />
+                  )
+                }
+              />
+              <Route
+                path="/verifyimage"
+                element={
+                  user?.isLoggedIn ? (
+                    <VerifyImage />
+                  ) : (
+                    <NotAllowed />
+                  )
+                }
+              />
+              <Route
+                path="/report"
+                element={
+                  user?.isLoggedIn ? (
+                    <Report />
+                  ) : (
+                    <NotAllowed />
+                  )
+                }
+              />
+            </Routes>
+            <Footer />
+          </>
+        )}
       </Router>
     </UserProvider>
   );
