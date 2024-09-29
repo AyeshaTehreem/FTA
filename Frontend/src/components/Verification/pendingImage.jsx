@@ -1,14 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { motion, useViewportScroll, useTransform, useSpring } from 'framer-motion';
+import { UserContext } from '../../UserContext';  // Adjust import path as necessary
 
 const PendingImage = () => {
+  const { user } = useContext(UserContext);
   const [currentColor, setCurrentColor] = useState('#EF4444'); // Initial red color
   const [pendingImages, setPendingImages] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const { scrollYProgress } = useViewportScroll();
   const yRange = useTransform(scrollYProgress, [0, 1], [0, 100]);
   const pathLength = useSpring(yRange, { stiffness: 400, damping: 90 });
+
+  // Inline styles for NotAllowed image
+  const notAllowedContainerStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh'
+  };
+
+  const notAllowedImageStyle = {
+    maxWidth: '100%',
+    maxHeight: '100%'
+  };
+
+  useEffect(() => {
+    if (!user.isLoggedIn || user.role !== 'verifier') {
+      // Show NotAllowed message if role is not 'verifier'
+      return;
+    }
+    fetchPendingImages();
+  }, [user]);
 
   // Function to fetch pending images
   const fetchPendingImages = async () => {
@@ -21,10 +45,6 @@ const PendingImage = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchPendingImages();
-  }, []);
 
   useEffect(() => {
     const colors = ['#EF4444', '#3B82F6', '#10B981', '#F59E0B'];
@@ -44,13 +64,20 @@ const PendingImage = () => {
     try {
       await axios.post(`http://localhost:5000/verifications/${id}/respond`, { response }, { withCredentials: true });
       alert('Response submitted successfully.');
-      // Refresh the pending images list
       fetchPendingImages();
     } catch (error) {
       console.error('Error submitting response:', error);
       alert('Failed to submit response.');
     }
   };
+
+  if (!user.isLoggedIn || user.role !== 'verifier') {
+    return (
+      <div style={notAllowedContainerStyle}>
+        <img src="/images/popular/not.jpeg" alt="Not Allowed" style={notAllowedImageStyle} />
+      </div>
+    );
+  }
 
   if (loading) {
     return <p>Loading...</p>;

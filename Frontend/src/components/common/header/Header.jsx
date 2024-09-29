@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from 'axios';
 import { UserContext } from "../../../UserContext";
@@ -10,6 +10,7 @@ const Header = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -73,6 +74,7 @@ const Header = () => {
       if (response.status === 200) {
         alert('Logout successful');
         logout();
+        navigate('/'); // Navigate to home page after successful logout
       } else {
         console.error('Logout failed with status:', response.status);
       }
@@ -95,22 +97,21 @@ const Header = () => {
         <Link to="/donation" className="text-gray-600 hover:text-gray-800">DONATION</Link>
         <Link to="/showallblog" className="text-gray-600 hover:text-gray-800">BLOGS</Link>
         {user?.isLoggedIn && (
-              <Link to="/verifyimage" className="text-sm text-gray-600 hover:text-gray-800">VERIFY NEWS</Link>
-            )}
-            {user?.isLoggedIn && user.role === 'verifier' && (
-              <Link to="/pendingimages" className="text-sm text-gray-600 hover:text-gray-800">PENDING VERIFICATIONS</Link>
-            )}
-            {user?.isLoggedIn && (
-              <Link to="/report" className="text-sm text-gray-600 hover:text-gray-800">
-                REPORTS
-              </Link>
-            )}
-            
-            {user?.isLoggedIn && user.role === 'editor' && (
-              <Link to="/editorblog" className="text-sm text-gray-600 hover:text-gray-800">ADD BLOG</Link>
-            )}
-      
-        
+          <Link to="/verifyimage" className="text-sm text-gray-600 hover:text-gray-800">VERIFY NEWS</Link>
+        )}
+        {user?.isLoggedIn && user.role === 'verifier' && (
+          <Link to="/pendingimages" className="text-sm text-gray-600 hover:text-gray-800">
+            PENDING VERIFICATIONS
+          </Link>
+        )}
+        {user?.isLoggedIn && (
+          <Link to="/report" className="text-sm text-gray-600 hover:text-gray-800">
+            REPORTS
+          </Link>
+        )}
+        {user?.isLoggedIn && user.role === 'editor' && (
+          <Link to="/editorblog" className="text-sm text-gray-600 hover:text-gray-800">ADD BLOG</Link>
+        )}
         <div className="text-gray-600">FAKE NEWS</div>
         {user.isLoggedIn ? (
           <button onClick={handleLogout} className="text-gray-600 hover:text-gray-800">LOGOUT</button>
@@ -125,7 +126,6 @@ const Header = () => {
     <header className="bg-white shadow-md relative">
       <div className="container mx-auto px-4">
         {windowWidth >= 640 && <TopBar />}
-        
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center">
             <button 
@@ -134,9 +134,9 @@ const Header = () => {
             >
               ☰
             </button>
-            <Link to="/" className="center text-4xl font-bold  ">
-              <span className="center text-gray-800  ">FTA</span>
-              <span className="center text-red-600  ">TIMES.</span>
+            <Link to="/" className="center text-4xl font-bold">
+              <span className="center text-gray-800">FTA</span>
+              <span className="center text-red-600">TIMES.</span>
             </Link>
           </div>
           <div className="flex items-center space-x-4">
@@ -148,9 +148,7 @@ const Header = () => {
             </select>
           </div>
         </div>
-        
         <TrendingSection />
-        
         <nav className="py-2 border-t border-b border-gray-200 hidden sm:block">
           <ul className="flex justify-between items-center">
             <li><Link to="/" className="text-sm font-semibold text-gray-800 hover:text-red-600">HOME</Link></li>
@@ -159,57 +157,53 @@ const Header = () => {
             </li>
             <li><Link to="/pages" className="text-sm font-semibold text-red-600">PAGES ▼</Link></li>
             <li><Link to="/aboutpage" className="text-sm font-semibold text-gray-800 hover:text-red-600">ABOUT US</Link></li>
-            <li><Link to="/typography" className="text-sm font-semibold text-gray-800 hover:text-red-600">TYPOGRAPHY</Link></li>
-            <li><Link to="/contact" className="text-sm font-semibold text-gray-800 hover:text-red-600">CONTACT</Link></li>
-            <li><Link to="/faq" className="text-sm font-semibold text-gray-800 hover:text-red-600">FAQ</Link></li>
-            <li>
-              <button className="text-gray-600 hover:text-gray-800">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </li>
+            <li><Link to="/lifestyle" className="text-sm font-semibold text-gray-800 hover:text-red-600">LIFESTYLE</Link></li>
+            <li><Link to="/lifestylenews" className="text-sm font-semibold text-gray-800 hover:text-red-600">NEWS</Link></li>
           </ul>
         </nav>
-      </div>
-      
-      {showMegamenu && (
-        <div className="absolute left-0 w-full bg-white shadow-lg z-20 hidden sm:block">
-          <div className="container mx-auto px-4 py-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {newsItems.map((newsItem, index) => (
-              <div key={index} className="relative group">
-                <Link to={newsItem.link} className="block overflow-hidden rounded-lg shadow-lg transition-transform transform hover:-translate-y-1">
-                  <img src={newsItem.img} alt={newsItem.title} className="w-full h-32 object-cover" />
-                  <div className="absolute inset-0 bg-black bg-opacity-25 transition-opacity opacity-0 group-hover:opacity-100"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
-                    <p className="text-sm text-white">{newsItem.category}</p>
-                    <p className="text-lg text-white font-bold">{newsItem.title}</p>
+        {showMegamenu && (
+          <div className="mega-menu absolute top-full left-0 w-full bg-white shadow-lg py-4 z-50">
+            <div className="container mx-auto px-4 grid grid-cols-4 gap-4">
+              {newsItems.map((item, index) => (
+                <Link to={item.link} className="block group" key={index}>
+                  <img src={item.img} alt={item.title} className="w-full h-40 object-cover group-hover:opacity-75 transition-opacity" />
+                  <div className="mt-2">
+                    <div className="text-xs text-gray-500">{item.category}</div>
+                    <div className="text-sm font-semibold text-gray-800 group-hover:text-red-600 transition-colors">{item.title}</div>
                   </div>
                 </Link>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-
-      {/* Sidebar for mobile */}
-      <div className={`fixed inset-y-0 left-0 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} w-64 bg-white shadow-lg transition-transform duration-300 ease-in-out z-30 sm:hidden`}>
-        <div className="p-4">
-          <button onClick={() => setSidebarOpen(false)} className="text-2xl mb-4">×</button>
+        )}
+      </div>
+      {sidebarOpen && (
+        <div className="sm:hidden absolute top-0 left-0 w-full h-screen bg-white z-50 flex flex-col">
+          <div className="flex justify-between items-center py-4 px-4">
+            <Link to="/" className="center text-4xl font-bold">
+              <span className="center text-gray-800">FTA</span>
+              <span className="center text-red-600">TIMES.</span>
+            </Link>
+            <button 
+              className="text-2xl"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              ×
+            </button>
+          </div>
           <TopBar isSidebar={true} />
-          <nav className="mt-4">
-            <ul className="space-y-2">
-              <li><Link to="/" className="block text-sm font-semibold text-gray-800 hover:text-red-600">HOME</Link></li>
-              <li><Link to="/mega-menu" className="block text-sm font-semibold text-gray-800 hover:text-red-600">MEGA MENU</Link></li>
-              <li><Link to="/pages" className="block text-sm font-semibold text-red-600">PAGES</Link></li>
-              <li><Link to="/aboutpage" className="block text-sm font-semibold text-gray-800 hover:text-red-600">ABOUT US</Link></li>
-              <li><Link to="/typography" className="block text-sm font-semibold text-gray-800 hover:text-red-600">TYPOGRAPHY</Link></li>
-              <li><Link to="/contact" className="block text-sm font-semibold text-gray-800 hover:text-red-600">CONTACT</Link></li>
-              <li><Link to="/faq" className="block text-sm font-semibold text-gray-800 hover:text-red-600">FAQ</Link></li>
+          <nav className="py-2 px-4 border-t border-b border-gray-200">
+            <ul className="flex flex-col space-y-2">
+              <li><Link to="/" className="text-sm font-semibold text-gray-800 hover:text-red-600">HOME</Link></li>
+              <li><Link to="/mega-menu" className="text-sm font-semibold text-gray-800 hover:text-red-600">MEGA MENU</Link></li>
+              <li><Link to="/pages" className="text-sm font-semibold text-red-600">PAGES</Link></li>
+              <li><Link to="/aboutpage" className="text-sm font-semibold text-gray-800 hover:text-red-600">ABOUT US</Link></li>
+              <li><Link to="/lifestyle" className="text-sm font-semibold text-gray-800 hover:text-red-600">LIFESTYLE</Link></li>
+              <li><Link to="/lifestylenews" className="text-sm font-semibold text-gray-800 hover:text-red-600">NEWS</Link></li>
             </ul>
           </nav>
         </div>
-      </div>
+      )}
     </header>
   );
 };

@@ -81,7 +81,17 @@ router.post('/logout', (req, res) => {
   });
 });
 
-
+router.get('/session', (req, res) => {
+  if (req.session.userId) {
+    return res.status(200).json({
+      role: req.session.role,
+      email: req.session.email,
+      username: req.session.username,
+    });
+  } else {
+    return res.status(401).json({ message: 'No active session' });
+  }
+});
 
 
 // Protected route (requires authentication)

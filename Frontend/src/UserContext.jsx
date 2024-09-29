@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 
 export const UserContext = createContext();
 
@@ -9,6 +9,30 @@ export const UserProvider = ({ children }) => {
     role: '',
     isLoggedIn: false,
   });
+
+  useEffect(() => {
+    const fetchSessionDetails = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/auth/session', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUser({
+            username: data.username,
+            email: data.email,
+            role: data.role,
+            isLoggedIn: true,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching session details:', error);
+      }
+    };
+
+    fetchSessionDetails();
+  }, []);
 
   const login = (username, email, role) => {
     setUser({
