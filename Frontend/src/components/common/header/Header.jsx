@@ -98,9 +98,7 @@ const Header = () => {
               <Link to="/verifyimage" className="text-sm text-gray-600 hover:text-gray-800">VERIFY NEWS</Link>
             )}
             {user?.isLoggedIn && user.role === 'verifier' && (
-              <Link to="/pendingimages" className="text-sm text-gray-600 hover:text-gray-800">
-                PENDING VERIFICATIONS
-              </Link>
+              <Link to="/pendingimages" className="text-sm text-gray-600 hover:text-gray-800">PENDING VERIFICATIONS</Link>
             )}
             {user?.isLoggedIn && (
               <Link to="/report" className="text-sm text-gray-600 hover:text-gray-800">
