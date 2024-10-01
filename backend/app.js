@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/blogs', require('./routes/blog'));
+app.use('/api/blogs', require('./routes/blogs'));
 app.use('/api/verification', require('./routes/verification'));
 app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/categories', require('./routes/category'));

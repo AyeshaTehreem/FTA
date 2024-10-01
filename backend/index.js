@@ -11,7 +11,7 @@ const createError = require('http-errors');
 
 // Import routes
 const authRoutes = require('./routes/auth');
-const blogRoutes = require('./routes/blog');
+const blogRoutes = require('./routes/blogs');
 const categoryRoutes = require('./routes/category');
 const feedbackRoutes = require('./routes/feedback');
 const tagRoutes = require('./routes/tag');

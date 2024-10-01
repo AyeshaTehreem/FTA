@@ -103,22 +103,31 @@ router.delete('/:id/unlike', authenticateToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
-// Comment on a blog post
 router.post('/:id/comment', authenticateToken, async (req, res) => {
-  const { text } = req.body;
+  const { text } = req.body; // Ensure the comment text is provided
+
+  // Check if comment text exists
+  if (!text) {
+    return res.status(400).json({ message: 'Comment text is required' });
+  }
 
   try {
     let blog = await Blog.findById(req.params.id);
     if (!blog) return res.status(404).send('Blog not found');
 
-    blog.comments.push({ userId: req.session.userId, userName: req.session.username, text });
+    blog.comments.push({
+      userId: req.session.userId, // Get the user ID from session
+      userName: req.session.username, // Get the username from session
+      text,
+    });
+
     await blog.save();
     res.json(blog);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // Delete a comment
 router.delete('/:id/comment/:commentId', authenticateToken, async (req, res) => {
@@ -188,12 +197,14 @@ router.delete('/:id/comment/:commentId/reply/:replyId', authenticateToken, async
 // GET all blogs
 router.get('/', async (req, res) => {
   try {
-    const blogs = await Blog.find().select('title imageUrl authorName categories createdAt likes comments');
+    const blogs = await Blog.find().select('_id title imageUrl authorName content categories createdAt likes comments');
     const filteredBlogs = blogs.map(blog => ({
+      _id: blog._id,
       title: blog.title,
       authorName: blog.authorName,
       categories: blog.categories,
       createdAt: blog.createdAt,
+      content: blog.content,
       likes: blog.likes.length,
       comments: blog.comments.length + blog.comments.reduce((count, comment) => count + comment.replies.length, 0),
       imageUrl: blog.imageUrl // Keep this only if you're saving it in the database
@@ -204,18 +215,41 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
-
-// Get a single blog post by ID with full details
+//single blog
+// GET single blog
 router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  console.log('Received request for blog ID:', id); // Log the ID
+
   try {
-    const blog = await Blog.findById(req.params.id);
-    if (!blog) return res.status(404).send('Blog not found');
-    res.json(blog);
+    const blog = await Blog.findById(id).select('_id title imageUrl authorName categories createdAt likes comments content');
+    
+    if (!blog) {
+      console.log('Blog not found'); // Log when blog is not found
+      return res.status(404).send('Blog not found');
+    }
+
+    // Format blog data
+    const formattedBlog = {
+      _id: blog._id,
+      title: blog.title,
+      authorName: blog.authorName,
+      categories: blog.categories,
+      createdAt: blog.createdAt,
+      likes: blog.likes.length,
+      content: blog.content,
+      comments: blog.comments.length + blog.comments.reduce((count, comment) => count + comment.replies.length, 0),
+      imageUrl: blog.imageUrl
+    };
+
+    res.json(formattedBlog);
   } catch (error) {
+    console.error('Error fetching blog:', error); // Log the error
     res.status(500).json({ message: error.message });
   }
 });
+
+
 
 // Get blogs of a certain category with initials
 router.get('/category/:category', async (req, res) => {

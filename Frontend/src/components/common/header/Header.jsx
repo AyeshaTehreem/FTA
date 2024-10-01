@@ -95,7 +95,7 @@ const Header = () => {
       <div className={`flex ${isSidebar ? 'flex-col space-y-2' : 'flex-wrap space-x-2 sm:space-x-4'} text-xs sm:text-sm`}>
         <Link to="/contact" className="text-gray-600 hover:text-gray-800">CONTACT</Link>
         <Link to="/donation" className="text-gray-600 hover:text-gray-800">DONATION</Link>
-        <Link to="/showallblog" className="text-gray-600 hover:text-gray-800">BLOGS</Link>
+        <Link to="/blogs" className="text-gray-600 hover:text-gray-800">BLOGS</Link>
         {user?.isLoggedIn && (
           <Link to="/verifyimage" className="text-sm text-gray-600 hover:text-gray-800">VERIFY NEWS</Link>
         )}

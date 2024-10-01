@@ -1,34 +1,44 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Search } from 'lucide-react';
 
-// BlogPost Component
-const BlogPost = ({ post }) => (
-  <div className="mb-8 border-b pb-8 flex flex-col md:flex-row">
-    <div className="relative overflow-hidden rounded-lg mb-4 md:mb-0 md:mr-4 md:w-1/3 flex-shrink-0">
-      <img 
-        src={`https://ftatimesfyp.s3.eu-north-1.amazonaws.com/${post.imageUrl}`} 
-        alt={post.title} 
-        className="w-full h-48 md:h-full object-cover"
-      />
-      <div className="absolute top-4 left-4 bg-red-600 text-white px-2 py-1 text-sm font-semibold">
-        {post.categories.join(', ')}
-      </div>
-    </div>
-    <div className="md:w-2/3">
-      <div className="flex items-center text-sm text-gray-500 mb-2">
-        <span>{post.authorName}</span>
-        <span className="mx-2">|</span>
-        <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-      </div>
-      <h2 className="text-2xl font-bold mb-2 text-black hover:text-red-600 transition-colors">
-        {post.title}
-      </h2>
-      <p className="text-gray-700 mb-2">{post.excerpt}</p>
-      <a href={`/blog/${post._id}`} className="text-red-600 hover:underline">Continue Reading...</a>
-    </div>
-  </div>
-);
+// BlogPosts Component
+const BlogPosts = ({ posts }) => {
+  return (
+    <>
+      {posts.map((post) => (
+        <div key={post._id} className="mb-8 border-b pb-8 flex flex-col md:flex-row">
+          <div className="relative overflow-hidden rounded-lg mb-4 md:mb-0 md:mr-4 md:w-1/3 flex-shrink-0">
+            <img 
+              src={`https://ftatimesfyp.s3.eu-north-1.amazonaws.com/${post.imageUrl}`} 
+              alt={post.title} 
+              className="w-full h-48 md:h-full object-cover"
+            />
+            <div className="absolute top-4 left-4 bg-red-600 text-white px-2 py-1 text-sm font-semibold">
+              {post.categories.join(', ')}
+            </div>
+          </div>
+          <div className="md:w-2/3">
+            <div className="flex items-center text-sm text-gray-500 mb-2">
+              <span>{post.authorName}</span>
+              <span className="mx-2">|</span>
+              <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+            </div>
+            <h2 className="text-2xl font-bold mb-2 text-black hover:text-red-600 transition-colors">
+              {post.title}
+            </h2>
+            <p className="text-gray-700 mb-2">{post.excerpt}</p>
+            <Link to={`/blogs/${post._id}`} className="text-red-600 hover:underline">
+              Continue Reading...
+            </Link>
+            
+          </div>
+        </div>
+      ))}
+    </>
+  );
+};
 
 // Sidebar Component
 const Sidebar = () => {
@@ -65,7 +75,7 @@ const Sidebar = () => {
         </div>
       </div>
       <div>
-        <h3 className="text-xl font-semibold mb-4 text-red-600 border-b pb-2">CATAGORY</h3>
+        <h3 className="text-xl font-semibold mb-4 text-red-600 border-b pb-2">CATEGORY</h3>
         <ul className="space-y-2">
           {categories.map((category, index) => (
             <li key={index} className="flex justify-between items-center group cursor-pointer">
@@ -196,45 +206,23 @@ const BlogPage = () => {
             <li><a href="#" className="hover:text-red-600">Featured News</a></li>
             <li><a href="#" className="hover:text-red-600">Most Popular</a></li>
             <li><a href="#" className="hover:text-red-600">Hot News</a></li>
-            <li><a href="#" className="hover:text-red-600">Trending News</a></li>
-            <li><a href="#" className="hover:text-red-600">Most Watched</a></li>
+            <li><a href="#" className="hover:text-red-600">Recent News</a></li>
           </ul>
         </div>
       </div>
-      
+      <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row">
+        <div className="md:w-3/4">
+          {blogs.length > 0 ? (
+            <BlogPosts posts={blogs} />
+          ) : (
+            <p>No blog posts available.</p>
+          )}
+        </div>
+        <div className="md:w-1/4 md:pl-8">
+          <Sidebar />
+        </div>
+      </div>
       <NewsTicker />
-      
-      <header className="bg-white text-black py-4 border-b">
-        <div className="container mx-auto px-4">
-          <nav className="flex items-center space-x-4">
-            <a href="#" className="text-gray-600 hover:text-red-600">Home</a>
-            <span className="text-gray-400">/</span>
-            <span className="text-red-600">Blog</span>
-          </nav>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row md:space-x-8">
-          <div className="md:w-2/3">
-            {blogs.map(post => (
-              <BlogPost key={post._id} post={post} />
-            ))}
-            <div className="bg-gray-200 p-4 text-center">
-              <span className="text-gray-700">728 x 200 ADVERTISEMENT</span>
-            </div>
-          </div>
-          <aside className="md:w-1/3 mt-8 md:mt-0">
-            <Sidebar />
-          </aside>
-        </div>
-      </main>
-
-      <footer className="bg-black text-white py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2024 Blog. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 };

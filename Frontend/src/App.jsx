@@ -10,13 +10,12 @@ import Report from './components/Verification/Report';
 import Login from './components/loginPage/Login';
 import NotAllowed from './components/loginPage/NotAllowed';
 import Contact from './components/contactPage/Contact';
-import BlogPost from './components/blogPost/BlogPost';
+import SingleBlogPost from './components/blogPost/SingleBlogPost';
 import EditorBlog from './components/blogPost/EditorBlog';
 import ShowAllBlogs from './components/blogPost/ShowAllBlogs';
 import AboutPage from './components/about/About';
 import LoadingScreen from './components/LoadingScreen';
 import ThemeToggle from './components/ThemeToggle';
-
 const App = () => {
   const { user } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,6 +29,7 @@ const App = () => {
   }, []);
 
   return (
+    
     <UserProvider>
       <Router>
         {isLoading ? (
@@ -37,14 +37,17 @@ const App = () => {
         ) : (
           <>
             <Header />
+            
             <ThemeToggle />
             <Routes>
+              
               <Route path="/" element={<Homepages />} />
               <Route path="/login" element={<Login />} />
               <Route path="/notallowed" element={<NotAllowed />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/showallblog" element={<ShowAllBlogs />} />
-              <Route path="/blog/:id" element={<BlogPost />} />
+              <Route path="/blogs" element={<ShowAllBlogs />} />
+              <Route path="/blogs/:id" element={<SingleBlogPost />} />
+              
               <Route
                 path="/editorblog"
                 element={
