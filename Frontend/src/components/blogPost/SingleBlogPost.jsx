@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Heart, Share2, MessageSquare, Bookmark, Eye, Calendar, Tag, User, ChevronLeft, ChevronRight } from 'lucide-react';
-
+import { Heart, Share2, MessageSquare, Bookmark, Eye, Calendar, Tag, User, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 const SingleBlogPost = () => {
   const { id } = useParams();
   const [post, setPost] = useState(null);
@@ -17,7 +16,7 @@ const SingleBlogPost = () => {
   const [trendingTopics, setTrendingTopics] = useState(['AI Ethics', 'Cybersecurity', 'Renewable Tech', 'Space Exploration', 'Biotechnology']);
   const [authorInfo, setAuthorInfo] = useState(null);
   const [newComment, setNewComment] = useState('');
-
+  const [showAllComments, setShowAllComments] = useState(false);
   const API_BASE_URL = 'http://localhost:5000/blogs';
 
   // Fetch blogs from backend
@@ -109,19 +108,24 @@ const SingleBlogPost = () => {
     setEmail('');
   };
 
+
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.post(`${API_BASE_URL}/${id}/comment`, { text: newComment }, { withCredentials: true });
+      
       // Refresh the post data to include the new comment
       const response = await axios.get(`${API_BASE_URL}/${id}`, { withCredentials: true });
-      setPost(response.data);
-      setNewComment('');
+      
+      console.log(response.data); // Debugging - Check if the response contains comments
+      
+      setPost(response.data); // Ensure post is updated
+      setNewComment(''); // Clear the input
     } catch (error) {
       console.error('Error submitting comment:', error);
     }
   };
-
+  
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
   if (!post) return <p>Blog not found.</p>;
@@ -172,51 +176,74 @@ const SingleBlogPost = () => {
             <p>{post.content}</p>
           </article>
 
-          {/* Comments section */}
-          <div className="mt-8">
-            <h2 className="text-3xl font-bold mb-6 text-red-600">Comments ({post.comments})</h2>
-            {/* Implement comment rendering here */}
-            <form onSubmit={handleCommentSubmit} className="mb-4">
-              <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                className="w-full p-2 border rounded"
-                placeholder="Write a comment..."
-              />
-              <button type="submit" className="mt-2 bg-red-600 text-white px-4 py-2 rounded">
-                Submit Comment
-              </button>
-            </form>
-          </div>
+      {/* Comments section */}
+      <div className="mt-12 bg-white rounded-lg shadow-lg p-6">
+  <h2 className="text-3xl font-bold mb-6 text-red-600 border-b pb-2">
+    Comments ({post.comments ? post.comments.length : 0})
+  </h2>
 
-          {/* Related Articles */}
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">Related Articles</h2>
-            <div className="relative">
-              <button onClick={() => handleSlideChange('prev')} className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md z-10">
-                <ChevronLeft size={24} />
-              </button>
-              <button onClick={() => handleSlideChange('next')} className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md z-10">
-                <ChevronRight size={24} />
-              </button>
-              <div className="overflow-hidden">
-                <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-                  {relatedArticles.map((article, index) => (
-                    <div key={index} className="w-full flex-shrink-0 px-4">
-                      <img src={article.image} alt={article.title} className="w-full h-48 object-cover rounded-lg mb-2" />
-                      <h3 className="font-bold text-lg mb-1">{article.title}</h3>
-                      <p className="text-sm text-gray-600">
-                        <User size={16} className="inline mr-1" />
-                        {article.author} |
-                        <Calendar size={16} className="inline mx-1" />
-                        {article.date}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+  <form onSubmit={handleCommentSubmit} className="mb-8">
+    <textarea
+      value={newComment}
+      onChange={(e) => setNewComment(e.target.value)}
+      className="w-full p-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-300 ease-in-out"
+      placeholder="Share your thoughts..."
+      rows="4"
+      required
+    />
+    <button type="submit" className="mt-3 bg-red-600 text-white px-6 py-2 rounded-full hover:bg-red-700 transition duration-300 ease-in-out flex items-center justify-center">
+      <MessageSquare size={18} className="mr-2" />
+      Post Comment
+    </button>
+  </form>
+
+  {/* Display comments if they exist */}
+  {Array.isArray(post.comments) && post.comments.length > 0 ? (
+    <div className="space-y-6">
+      {post.comments
+        .slice(0, showAllComments ? post.comments.length : 3)
+        .reverse() // Reverse the order of comments here
+        .map((comment, index) => (
+          <div key={index} className="bg-gray-50 rounded-lg p-4 shadow-md border-l-4 border-red-500 transition duration-300 ease-in-out hover:shadow-lg">
+            <div className="flex items-center mb-2">
+              <User size={24} className="text-gray-500 mr-2" />
+              <span className="font-semibold text-gray-800">{comment.userName}</span>
+              <span className="ml-auto text-sm text-gray-500">
+                {new Date(comment.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+              </span>
             </div>
+            <p className="text-gray-700 ml-8">{comment.text || comment.content}</p>
           </div>
+        ))}
+
+      {/* Toggle between showing all and fewer comments */}
+      {post.comments.length > 3 && (
+        <button
+          onClick={() => setShowAllComments(!showAllComments)}
+          className="mt-6 text-red-600 font-semibold hover:text-red-800 transition-colors duration-200 flex items-center justify-center w-full"
+        >
+          {showAllComments ? (
+            <>
+              <ChevronUp size={20} className="mr-1" />
+              Show Fewer Comments
+            </>
+          ) : (
+            <>
+              <ChevronDown size={20} className="mr-1" />
+              Show All Comments
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  ) : (
+    <div className="text-center py-8 text-gray-500">
+      <MessageSquare size={48} className="mx-auto mb-4 text-gray-400" />
+      <p className="text-lg">No comments yet. Be the first to share your thoughts!</p>
+    </div>
+  )}
+</div>
+
         </main>
 
         {/* Sidebar */}

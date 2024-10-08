@@ -103,6 +103,7 @@ router.delete('/:id/unlike', authenticateToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+//post commment
 router.post('/:id/comment', authenticateToken, async (req, res) => {
   const { text } = req.body; // Ensure the comment text is provided
 
@@ -217,38 +218,28 @@ router.get('/', async (req, res) => {
 });
 //single blog
 // GET single blog
+// GET single blog with full comments
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   console.log('Received request for blog ID:', id); // Log the ID
 
   try {
-    const blog = await Blog.findById(id).select('_id title imageUrl authorName categories createdAt likes comments content');
-    
+    // Fetch the blog with full comment details
+    const blog = await Blog.findById(id)
+      .select('_id title imageUrl authorName categories createdAt likes comments content');
+
     if (!blog) {
       console.log('Blog not found'); // Log when blog is not found
       return res.status(404).send('Blog not found');
     }
 
-    // Format blog data
-    const formattedBlog = {
-      _id: blog._id,
-      title: blog.title,
-      authorName: blog.authorName,
-      categories: blog.categories,
-      createdAt: blog.createdAt,
-      likes: blog.likes.length,
-      content: blog.content,
-      comments: blog.comments.length + blog.comments.reduce((count, comment) => count + comment.replies.length, 0),
-      imageUrl: blog.imageUrl
-    };
-
-    res.json(formattedBlog);
+    // Return the full blog details, including all comments
+    res.json(blog);
   } catch (error) {
     console.error('Error fetching blog:', error); // Log the error
     res.status(500).json({ message: error.message });
   }
 });
-
 
 
 // Get blogs of a certain category with initials
