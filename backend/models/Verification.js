@@ -15,6 +15,7 @@ const verificationSchema = new Schema({
   verifications: [verificationResponseSchema],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date },
+  statusCount: { type: Number, default: 0 }
 });
 
 const reportSchema = new Schema({
