@@ -95,6 +95,7 @@ router.post('/:id/respond', authenticateToken, async (req, res) => {
       const realResponses = verification.verifications.filter(v => v.response === 'Real').length;
       const fakeResponses = verification.verifications.filter(v => v.response === 'Fake').length;
       verification.status = realResponses > fakeResponses ? 'Verified' : 'Rejected';
+      verification.statusCount = 1;
       await verification.save();
     }
 
@@ -103,6 +104,56 @@ router.post('/:id/respond', authenticateToken, async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+router.get('/requests/statuscount/1', authenticateToken, async (req, res) => {
+  if (req.session.role !== 'admin') {
+    return res.status(403).json({ message: 'Unauthorized action' });
+  }
+
+  try {
+    const requests = await Verification.find({ statusCount: 1 }).populate('user', 'username email');
+    res.json(requests);
+  } catch (error) {
+    res.status(500).send('Server error');
+  }
+});
+
+router.post('/admin/respond/:id', authenticateToken, async (req, res) => {
+  const { action } = req.body; // action should be 'accept' or 'reject'
+  if (req.session.role !== 'admin') {
+    return res.status(403).json({ message: 'Unauthorized action' });
+  }
+
+  try {
+    const verification = await Verification.findById(req.params.id);
+    if (!verification) return res.status(404).send('Verification request not found');
+
+    if (action === 'accept') {
+      verification.statusCount = 2;
+    } else if (action === 'reject') {
+      verification.statusCount = 3;
+    } else {
+      return res.status(400).json({ message: 'Invalid action' });
+    }
+
+    await verification.save();
+    res.json(verification);
+  } catch (error) {
+    res.status(500).send('Server error');
+  }
+});
+
+router.get('/requests/statuscount/2',  async (req, res) => {
+ 
+
+  try {
+    const requests = await Verification.find({ statusCount: 2 }).populate('user', 'username email');
+    res.json(requests);
+  } catch (error) {
+    res.status(500).send('Server error');
+  }
+});
+
 
 router.get('/reports', authenticateToken, async (req, res) => {
   try {

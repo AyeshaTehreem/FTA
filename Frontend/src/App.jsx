@@ -6,6 +6,8 @@ import Footer from './components/common/footer/Footer';
 import Homepages from './components/home/Homepages';
 import PendingImage from './components/Verification/pendingImage';
 import VerifyImage from './components/Verification/verifyimage';
+import ManageVerification from './components/Verification/ManageVerifiedNews';
+import ViewVerified from './components/Verification/ViewVerifiedNews';
 import Report from './components/Verification/Report';
 import Login from './components/loginPage/Login';
 import NotAllowed from './components/loginPage/NotAllowed';
@@ -29,7 +31,7 @@ const App = () => {
   }, []);
 
   return (
-    
+
     <UserProvider>
       <Router>
         {isLoading ? (
@@ -37,17 +39,17 @@ const App = () => {
         ) : (
           <>
             <Header />
-            
+
             <ThemeToggle />
             <Routes>
-              
+
               <Route path="/" element={<Homepages />} />
               <Route path="/login" element={<Login />} />
               <Route path="/notallowed" element={<NotAllowed />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/blogs" element={<ShowAllBlogs />} />
               <Route path="/blogs/:id" element={<SingleBlogPost />} />
-              
+
               <Route
                 path="/editorblog"
                 element={
@@ -58,7 +60,19 @@ const App = () => {
                   )
                 }
               />
+
+              <Route
+                path="/manageverified"
+                element={
+                  user?.isLoggedIn && user?.role === 'admin' ? (
+                    <ManageVerification />
+                  ) : (
+                    <NotAllowed />
+                  )
+                }
+              />
               <Route path="/aboutpage" element={<AboutPage />} />
+              <Route path="/fakenews" element={<ViewVerified />} />
               <Route
                 path="/pendingimages"
                 element={
