@@ -23,9 +23,9 @@ const LoginSignup = () => {
       let response;
 
       if (isLogin) {
-        response = await axios.post('http://localhost:5000/auth/login', { email, password }, { withCredentials: true });
+        response = await axios.post('http://localhost:5002/auth/login', { email, password }, { withCredentials: true });
       } else {
-        response = await axios.post('http://localhost:5000/auth/register', { username, email, password });
+        response = await axios.post('http://localhost:5002/auth/register', { username, email, password });
         setUsername('');
         setEmail('');
         setPassword('');

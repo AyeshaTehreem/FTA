@@ -25,7 +25,7 @@ const VerifyBlog = () => {
 
       try {
         setUploading(true);
-        const response = await axios.post('http://localhost:5000/verifications/upload', formData, {
+        const response = await axios.post('http://localhost:5002/verifications/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

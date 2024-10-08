@@ -1,42 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Search } from 'lucide-react';
+import { Search, ChevronRight, ChevronLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // BlogPosts Component
 const BlogPosts = ({ posts }) => {
   return (
-    <>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       {posts.map((post) => (
-        <div key={post._id} className="mb-8 border-b pb-8 flex flex-col md:flex-row">
-          <div className="relative overflow-hidden rounded-lg mb-4 md:mb-0 md:mr-4 md:w-1/3 flex-shrink-0">
+        <motion.div
+          key={post._id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col"
+        >
+          <div className="relative h-48 overflow-hidden">
             <img 
               src={`https://ftatimesfyp.s3.eu-north-1.amazonaws.com/${post.imageUrl}`} 
               alt={post.title} 
-              className="w-full h-48 md:h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
             />
-            <div className="absolute top-4 left-4 bg-red-600 text-white px-2 py-1 text-sm font-semibold">
-              {post.categories.join(', ')}
-            </div>
+            <span className="absolute top-4 left-4 bg-red-600 text-white px-2 py-1 text-sm font-semibold rounded">
+              {post.categories[0]}
+            </span>
           </div>
-          <div className="md:w-2/3">
+          <div className="p-6 flex-grow">
             <div className="flex items-center text-sm text-gray-500 mb-2">
               <span>{post.authorName}</span>
               <span className="mx-2">|</span>
               <span>{new Date(post.createdAt).toLocaleDateString()}</span>
             </div>
-            <h2 className="text-2xl font-bold mb-2 text-black hover:text-red-600 transition-colors">
+            <h2 className="text-2xl font-bold mb-2 text-gray-800 hover:text-red-600 transition-colors">
               {post.title}
             </h2>
-            <p className="text-gray-700 mb-2">{post.excerpt}</p>
-            <Link to={`/blogs/${post._id}`} className="text-red-600 hover:underline">
-              Continue Reading...
-            </Link>
-            
+            <p className="text-gray-600 mb-4">{post.excerpt}</p>
           </div>
-        </div>
+          <div className="px-6 pb-6">
+            <Link to={`/blogs/${post._id}`}>
+              <button className="text-red-600 border border-red-600 px-4 py-2 rounded hover:bg-red-600 hover:text-white transition-colors">
+                Continue Reading
+              </button>
+            </Link>
+          </div>
+        </motion.div>
       ))}
-    </>
+    </div>
   );
 };
 
@@ -64,7 +74,7 @@ const Sidebar = () => {
 
   return (
     <div className="space-y-8">
-      <div>
+      <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="relative">
           <input 
             type="text" 
@@ -74,35 +84,51 @@ const Sidebar = () => {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
         </div>
       </div>
-      <div>
-        <h3 className="text-xl font-semibold mb-4 text-red-600 border-b pb-2">CATEGORY</h3>
+      
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold text-red-600 mb-4">CATEGORY</h3>
         <ul className="space-y-2">
           {categories.map((category, index) => (
-            <li key={index} className="flex justify-between items-center group cursor-pointer">
+            <motion.li 
+              key={index} 
+              className="flex justify-between items-center group cursor-pointer"
+              whileHover={{ scale: 1.05 }}
+            >
               <span className="group-hover:text-red-600 transition-colors">{category.name}</span>
-              <span className="text-gray-500 text-sm">({category.count})</span>
-            </li>
+              <span className="text-gray-500 text-sm px-2 py-1 bg-gray-100 rounded-full">{category.count}</span>
+            </motion.li>
           ))}
         </ul>
       </div>
-      <div>
-        <h3 className="text-xl font-semibold mb-4 text-red-600 border-b pb-2">TAGS</h3>
+
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold text-red-600 mb-4">TAGS</h3>
         <div className="flex flex-wrap gap-2">
           {tags.map((tag, index) => (
-            <span key={index} className="bg-gray-200 text-gray-700 px-2 py-1 text-sm rounded hover:bg-red-600 hover:text-white cursor-pointer transition-colors">
+            <motion.span
+              key={index}
+              className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-red-600 hover:text-white transition-colors"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
               {tag}
-            </span>
+            </motion.span>
           ))}
         </div>
       </div>
-      <div>
-        <h3 className="text-xl font-semibold mb-4 text-red-600 border-b pb-2">ARCHIVES</h3>
+
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold text-red-600 mb-4">ARCHIVES</h3>
         <ul className="space-y-2">
           {archives.map((archive, index) => (
-            <li key={index} className="flex justify-between items-center group cursor-pointer">
+            <motion.li 
+              key={index} 
+              className="flex justify-between items-center group cursor-pointer"
+              whileHover={{ scale: 1.05 }}
+            >
               <span className="group-hover:text-red-600 transition-colors">{archive.month}</span>
-              <span className="text-gray-500 text-sm">({archive.count})</span>
-            </li>
+              <span className="text-gray-500 text-sm px-2 py-1 bg-gray-100 rounded-full">{archive.count}</span>
+            </motion.li>
           ))}
         </ul>
       </div>
@@ -112,7 +138,7 @@ const Sidebar = () => {
 
 // NewsTicker Component
 const NewsTicker = () => {
-  const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
+  const [currentIndex, setCurrentIndex] = useState(0);
   const newsItems = [
     "Contrary to popular belief Lorem Ipsum is not simply random text.",
     "Education to popular belief Lorem Ipsum is not simply",
@@ -123,49 +149,45 @@ const NewsTicker = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setLastUpdateTime(new Date());
-    }, 60000); // Update every minute
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % newsItems.length);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  const formatTime = (date) => {
-    const minutes = Math.floor((new Date() - date) / 60000);
-    return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
-  };
-
-  const tickerStyle = {
-    display: 'inline-block',
-    whiteSpace: 'nowrap',
-    animation: 'ticker 30s linear infinite',
-  };
-
-  const keyframes = `
-    @keyframes ticker {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-  `;
-
   return (
-    <div className="bg-white border-b border-gray-200 overflow-hidden">
-      <style>{keyframes}</style>
+    <div className="bg-gray-100 border-y border-gray-200 py-4">
       <div className="container mx-auto px-4">
-        <div className="flex items-center py-2">
-          <div className="bg-black text-white px-3 py-1 mr-4 text-sm font-bold flex items-center whitespace-nowrap">
-            <span>News Updates</span>
-            <span className="ml-2 text-xs">({formatTime(lastUpdateTime)})</span>
+        <div className="flex items-center">
+          <div className="bg-red-600 text-white px-4 py-2 mr-4 font-bold flex items-center">
+            <span>Breaking News</span>
           </div>
-          <div className="overflow-hidden flex-1">
-            <div style={tickerStyle}>
-              {newsItems.concat(newsItems).map((item, index) => (
-                <span
-                  key={index}
-                  className="inline-block mr-8 text-gray-600 hover:text-red-600 cursor-pointer transition-colors"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
+          <div className="flex-1 overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentIndex}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -20, opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-gray-800"
+              >
+                {newsItems[currentIndex]}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+          <div className="flex space-x-2">
+            <button 
+              className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
+              onClick={() => setCurrentIndex((prevIndex) => (prevIndex - 1 + newsItems.length) % newsItems.length)}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button 
+              className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
+              onClick={() => setCurrentIndex((prevIndex) => (prevIndex + 1) % newsItems.length)}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </div>
@@ -181,7 +203,7 @@ const BlogPage = () => {
   // Fetch all blogs from the backend
   const fetchBlogs = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/blogs/', { withCredentials: true });
+      const response = await axios.get('http://localhost:5002/blogs/', { withCredentials: true });
       setBlogs(response.data);
     } catch (error) {
       console.error('Error fetching blogs:', error);
@@ -195,34 +217,40 @@ const BlogPage = () => {
   }, []);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-red-600"></div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="bg-gray-100 text-gray-600 py-2">
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-red-600 text-white py-4">
         <div className="container mx-auto px-4">
-          <ul className="flex justify-center space-x-4 text-sm">
-            <li><a href="#" className="hover:text-red-600">Featured News</a></li>
-            <li><a href="#" className="hover:text-red-600">Most Popular</a></li>
-            <li><a href="#" className="hover:text-red-600">Hot News</a></li>
-            <li><a href="#" className="hover:text-red-600">Recent News</a></li>
+          <ul className="flex justify-center space-x-6 text-sm font-medium">
+            <motion.li whileHover={{ scale: 1.1 }}><a href="#" className="hover:underline">Featured News</a></motion.li>
+            <motion.li whileHover={{ scale: 1.1 }}><a href="#" className="hover:underline">Most Popular</a></motion.li>
+            <motion.li whileHover={{ scale: 1.1 }}><a href="#" className="hover:underline">Hot News</a></motion.li>
+            <motion.li whileHover={{ scale: 1.1 }}><a href="#" className="hover:underline">Recent News</a></motion.li>
           </ul>
         </div>
       </div>
-      <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row">
-        <div className="md:w-3/4">
-          {blogs.length > 0 ? (
-            <BlogPosts posts={blogs} />
-          ) : (
-            <p>No blog posts available.</p>
-          )}
-        </div>
-        <div className="md:w-1/4 md:pl-8">
-          <Sidebar />
+      <NewsTicker />
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex flex-col md:flex-row md:space-x-8">
+          <main className="md:w-3/4">
+            {blogs.length > 0 ? (
+              <BlogPosts posts={blogs} />
+            ) : (
+              <p className="text-center text-gray-600">No blog posts available.</p>
+            )}
+          </main>
+          <aside className="md:w-1/4 mt-8 md:mt-0">
+            <Sidebar />
+          </aside>
         </div>
       </div>
-      <NewsTicker />
     </div>
   );
 };

@@ -13,7 +13,7 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     const fetchSessionDetails = async () => {
       try {
-        const response = await fetch('http://localhost:5000/auth/session', {
+        const response = await fetch('http://localhost:5002/auth/session', {
           method: 'GET',
           credentials: 'include',
         });

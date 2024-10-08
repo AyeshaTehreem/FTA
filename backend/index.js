@@ -20,7 +20,7 @@ const verificationRoutes = require('./routes/verification');
 dotenv.config(); // Load environment variables from .env file
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5002;
 const mongoUri = process.env.MONGO_URI;
 
 // MongoDB connection

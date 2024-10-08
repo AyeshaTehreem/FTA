@@ -12,7 +12,6 @@ const Homepages = () => {
     <Discover />
     <Hero />
     <NewsCorner/>
-    <NewsSection />
     
     </>
   )

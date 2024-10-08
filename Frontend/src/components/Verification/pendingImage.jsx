@@ -37,7 +37,7 @@ const PendingImage = () => {
   // Function to fetch pending images
   const fetchPendingImages = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/verifications/pending', { withCredentials: true });
+      const response = await axios.get('http://localhost:5002/verifications/pending', { withCredentials: true });
       setPendingImages(response.data);
     } catch (error) {
       console.error('Error fetching pending images:', error);
@@ -62,7 +62,7 @@ const PendingImage = () => {
 
   const handleResponse = async (id, response) => {
     try {
-      await axios.post(`http://localhost:5000/verifications/${id}/respond`, { response }, { withCredentials: true });
+      await axios.post(`http://localhost:5002/verifications/${id}/respond`, { response }, { withCredentials: true });
       alert('Response submitted successfully.');
       fetchPendingImages();
     } catch (error) {

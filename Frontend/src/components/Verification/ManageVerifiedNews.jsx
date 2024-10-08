@@ -37,7 +37,7 @@ const ManageVerifiedNews = () => {
   // Function to fetch verified news
   const fetchVerifiedNews = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/verifications/requests/statuscount/1', { withCredentials: true });
+      const response = await axios.get('http://localhost:5002/verifications/requests/statuscount/1', { withCredentials: true });
       setVerifiedNews(response.data);
     } catch (error) {
       console.error('Error fetching verified news:', error);
@@ -62,7 +62,7 @@ const ManageVerifiedNews = () => {
 
   const handleResponse = async (id, action) => {
     try {
-      await axios.post(`http://localhost:5000/verifications/admin/respond/${id}`, { action }, { withCredentials: true });
+      await axios.post(`http://localhost:5002/verifications/admin/respond/${id}`, { action }, { withCredentials: true });
       alert('Response submitted successfully.');
       fetchVerifiedNews();
     } catch (error) {

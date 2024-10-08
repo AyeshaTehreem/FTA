@@ -70,7 +70,7 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/auth/logout', {}, { withCredentials: true });
+      const response = await axios.post('http://localhost:5002/auth/logout', {}, { withCredentials: true });
       if (response.status === 200) {
         alert('Logout successful');
         logout();
