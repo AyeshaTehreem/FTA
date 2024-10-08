@@ -112,7 +112,7 @@ const Header = () => {
         {user?.isLoggedIn && user.role === 'editor' && (
           <Link to="/editorblog" className="text-sm text-gray-600 hover:text-gray-800">ADD BLOG</Link>
         )}
-        <div className="text-gray-600">FAKE NEWS</div>
+        <Link to="/fakenews" className="text-gray-600 hover:text-gray-800">FAKE NEWS</Link>
         {user.isLoggedIn ? (
           <button onClick={handleLogout} className="text-gray-600 hover:text-gray-800">LOGOUT</button>
         ) : (
