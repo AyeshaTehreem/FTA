@@ -69,20 +69,23 @@ router.post('/:id/like', authenticateToken, async (req, res) => {
     let blog = await Blog.findById(req.params.id);
     if (!blog) return res.status(404).send('Blog not found');
 
-    // Check if the user has already liked the blog
-    const alreadyLiked = blog.likes.some(like => like.userId === req.session.userId);
-    if (alreadyLiked) {
-      return res.status(400).json({ message: 'Already liked' });
+    const userLikeIndex = blog.likes.findIndex(like => like.userId.toString() === req.session.userId);
+    
+    if (userLikeIndex > -1) {
+      // User has already liked, so remove the like (dislike)
+      blog.likes.splice(userLikeIndex, 1);
+    } else {
+      // Add new like
+      blog.likes.push({ userId: req.session.userId, userName: req.session.username });
     }
 
-    // Add the like
-    blog.likes.push({ userId: req.session.userId, userName: req.session.username });
     await blog.save();
-    res.json(blog);
+    res.json({ likes: blog.likes.length, userLiked: userLikeIndex === -1 });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // Unlike a blog post
 router.delete('/:id/unlike', authenticateToken, async (req, res) => {
@@ -130,71 +133,6 @@ router.post('/:id/comment', authenticateToken, async (req, res) => {
 });
 
 
-// Delete a comment
-router.delete('/:id/comment/:commentId', authenticateToken, async (req, res) => {
-  try {
-    let blog = await Blog.findById(req.params.id);
-    if (!blog) return res.status(404).send('Blog not found');
-
-    const commentIndex = blog.comments.findIndex(comment => 
-      comment._id.toString() === req.params.commentId && 
-      comment.userId.toString() === req.session.userId
-    );
-
-    if (commentIndex === -1) {
-      return res.status(400).json({ message: 'Comment not found or user not authorized' });
-    }
-
-    blog.comments.splice(commentIndex, 1);
-    await blog.save();
-
-    res.json({ message: 'Comment removed successfully' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Reply to a comment
-router.post('/:id/comment/:commentId/reply', authenticateToken, async (req, res) => {
-  const { text } = req.body;
-
-  try {
-    let blog = await Blog.findById(req.params.id);
-    if (!blog) return res.status(404).send('Blog not found');
-
-    const comment = blog.comments.id(req.params.commentId);
-    if (!comment) return res.status(404).send('Comment not found');
-
-    comment.replies.push({ userId: req.session.userId, userName: req.session.username, text });
-    await blog.save();
-    res.json(blog);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Delete a reply
-router.delete('/:id/comment/:commentId/reply/:replyId', authenticateToken, async (req, res) => {
-  try {
-    let blog = await Blog.findById(req.params.id);
-    if (!blog) return res.status(404).send('Blog not found');
-
-    const comment = blog.comments.id(req.params.commentId);
-    if (!comment) return res.status(404).send('Comment not found');
-
-    const replyToRemove = comment.replies.find(reply => reply._id.toString() === req.params.replyId && reply.userId.toString() === req.session.userId);
-    if (!replyToRemove) return res.status(400).json({ message: 'Reply not found or user not authorized' });
-
-    await Blog.updateOne(
-      { _id: req.params.id, 'comments._id': req.params.commentId },
-      { $pull: { 'comments.$.replies': { _id: replyToRemove._id } } }
-    );
-
-    res.json({ message: 'Reply removed successfully' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
 // GET all blogs
 router.get('/', async (req, res) => {
   try {
@@ -240,6 +178,7 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 
 // Get blogs of a certain category with initials

@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Heart, Share2, MessageSquare, Bookmark, Eye, Calendar, Tag, User, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { UserContext } from '../../UserContext'; // Adjust the path based on the relative location
+
 const SingleBlogPost = () => {
   const { id } = useParams();
   const [post, setPost] = useState(null);
@@ -10,6 +12,7 @@ const SingleBlogPost = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [relatedArticles, setRelatedArticles] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { isLoggedIn } = useContext(UserContext); // Access the UserContext here
   const [mostReadArticles, setMostReadArticles] = useState([]);
   const [mostReadBlogs, setMostReadBlogs] = useState([]);
   const [email, setEmail] = useState('');
@@ -46,7 +49,7 @@ const SingleBlogPost = () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/${id}`, { withCredentials: true });
         setPost(response.data);
-
+        
         // Simulated data for related articles and most read
         // In a real application, these would be separate API calls
         setRelatedArticles([
@@ -77,29 +80,26 @@ const SingleBlogPost = () => {
   }, [id]);
 
   const handleLike = async () => {
+   
     try {
-      await axios.post(`${API_BASE_URL}/${id}/like`, {}, { withCredentials: true });
+      const response = await axios.post(`${API_BASE_URL}/${post._id}/like`, {}, { withCredentials: true });
       setPost(prevPost => ({
         ...prevPost,
-        likes: prevPost.likes + 1
+        likes: response.data.likes,
+        userLiked: response.data.userLiked
       }));
     } catch (error) {
       console.error('Error liking post:', error);
+      if (error.response && error.response.status === 401) {
+        alert('Your session has expired. Please log in again.');
+      }
     }
   };
 
-  const handleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
-    // Implement bookmark logic here (you might want to add a new API endpoint for this)
-  };
+ 
 
-  const handleSlideChange = (direction) => {
-    if (direction === 'next') {
-      setCurrentSlide((prev) => (prev + 1) % relatedArticles.length);
-    } else {
-      setCurrentSlide((prev) => (prev - 1 + relatedArticles.length) % relatedArticles.length);
-    }
-  };
+
+
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
@@ -113,19 +113,19 @@ const SingleBlogPost = () => {
     e.preventDefault();
     try {
       await axios.post(`${API_BASE_URL}/${id}/comment`, { text: newComment }, { withCredentials: true });
-      
+
       // Refresh the post data to include the new comment
       const response = await axios.get(`${API_BASE_URL}/${id}`, { withCredentials: true });
-      
+
       console.log(response.data); // Debugging - Check if the response contains comments
-      
+
       setPost(response.data); // Ensure post is updated
       setNewComment(''); // Clear the input
     } catch (error) {
       console.error('Error submitting comment:', error);
     }
   };
-  
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
   if (!post) return <p>Blog not found.</p>;
@@ -149,20 +149,18 @@ const SingleBlogPost = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <button onClick={handleLike} className="flex items-center space-x-1 text-gray-600 hover:text-red-600">
-                <Heart size={20} className={post.likes > 0 ? 'fill-current text-red-600' : ''} />
-                <span>{post.likes}</span>
-              </button>
-              <button onClick={handleBookmark} className={`text-gray-600 hover:text-yellow-500 ${isBookmarked ? 'text-yellow-500' : ''}`}>
-                <Bookmark size={20} className={`${isBookmarked ? 'fill-current' : ''}`} />
-              </button>
+            <button
+        onClick={handleLike}
+        className="flex items-center space-x-1 text-gray-600 hover:text-red-600"
+      >
+        <Heart size={20} className={post.userLiked ? 'fill-current text-red-600' : ''} />
+        <span>{post.likes.length}</span>
+      </button>
+
               <button className="text-gray-600 hover:text-blue-600">
                 <Share2 size={20} />
               </button>
-              <div className="flex items-center text-gray-600">
-                <Eye size={20} className="mr-1" />
-                <span>{post.views || 0}</span>
-              </div>
+
             </div>
           </div>
           {post.imageUrl && (
@@ -176,73 +174,73 @@ const SingleBlogPost = () => {
             <p>{post.content}</p>
           </article>
 
-      {/* Comments section */}
-      <div className="mt-12 bg-white rounded-lg shadow-lg p-6">
-  <h2 className="text-3xl font-bold mb-6 text-red-600 border-b pb-2">
-    Comments ({post.comments ? post.comments.length : 0})
-  </h2>
+          {/* Comments section */}
+          <div className="mt-12 bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-3xl font-bold mb-6 text-red-600 border-b pb-2">
+              Comments ({post.comments ? post.comments.length : 0})
+            </h2>
 
-  <form onSubmit={handleCommentSubmit} className="mb-8">
-    <textarea
-      value={newComment}
-      onChange={(e) => setNewComment(e.target.value)}
-      className="w-full p-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-300 ease-in-out"
-      placeholder="Share your thoughts..."
-      rows="4"
-      required
-    />
-    <button type="submit" className="mt-3 bg-red-600 text-white px-6 py-2 rounded-full hover:bg-red-700 transition duration-300 ease-in-out flex items-center justify-center">
-      <MessageSquare size={18} className="mr-2" />
-      Post Comment
-    </button>
-  </form>
+            <form onSubmit={handleCommentSubmit} className="mb-8">
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                className="w-full p-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition duration-300 ease-in-out"
+                placeholder="Share your thoughts..."
+                rows="4"
+                required
+              />
+              <button type="submit" className="mt-3 bg-red-600 text-white px-6 py-2 rounded-full hover:bg-red-700 transition duration-300 ease-in-out flex items-center justify-center">
+                <MessageSquare size={18} className="mr-2" />
+                Post Comment
+              </button>
+            </form>
 
-  {/* Display comments if they exist */}
-  {Array.isArray(post.comments) && post.comments.length > 0 ? (
-    <div className="space-y-6">
-      {post.comments
-        .slice(0, showAllComments ? post.comments.length : 3)
-        .reverse() // Reverse the order of comments here
-        .map((comment, index) => (
-          <div key={index} className="bg-gray-50 rounded-lg p-4 shadow-md border-l-4 border-red-500 transition duration-300 ease-in-out hover:shadow-lg">
-            <div className="flex items-center mb-2">
-              <User size={24} className="text-gray-500 mr-2" />
-              <span className="font-semibold text-gray-800">{comment.userName}</span>
-              <span className="ml-auto text-sm text-gray-500">
-                {new Date(comment.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-              </span>
-            </div>
-            <p className="text-gray-700 ml-8">{comment.text || comment.content}</p>
+            {/* Display comments if they exist */}
+            {Array.isArray(post.comments) && post.comments.length > 0 ? (
+              <div className="space-y-6">
+                {post.comments
+                  .slice(0, showAllComments ? post.comments.length : 3)
+                  .reverse() // Reverse the order of comments here
+                  .map((comment, index) => (
+                    <div key={index} className="bg-gray-50 rounded-lg p-4 shadow-md border-l-4 border-red-500 transition duration-300 ease-in-out hover:shadow-lg">
+                      <div className="flex items-center mb-2">
+                        <User size={24} className="text-gray-500 mr-2" />
+                        <span className="font-semibold text-gray-800">{comment.userName}</span>
+                        <span className="ml-auto text-sm text-gray-500">
+                          {new Date(comment.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                      <p className="text-gray-700 ml-8">{comment.text || comment.content}</p>
+                    </div>
+                  ))}
+
+                {/* Toggle between showing all and fewer comments */}
+                {post.comments.length > 3 && (
+                  <button
+                    onClick={() => setShowAllComments(!showAllComments)}
+                    className="mt-6 text-red-600 font-semibold hover:text-red-800 transition-colors duration-200 flex items-center justify-center w-full"
+                  >
+                    {showAllComments ? (
+                      <>
+                        <ChevronUp size={20} className="mr-1" />
+                        Show Fewer Comments
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown size={20} className="mr-1" />
+                        Show All Comments
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <MessageSquare size={48} className="mx-auto mb-4 text-gray-400" />
+                <p className="text-lg">No comments yet. Be the first to share your thoughts!</p>
+              </div>
+            )}
           </div>
-        ))}
-
-      {/* Toggle between showing all and fewer comments */}
-      {post.comments.length > 3 && (
-        <button
-          onClick={() => setShowAllComments(!showAllComments)}
-          className="mt-6 text-red-600 font-semibold hover:text-red-800 transition-colors duration-200 flex items-center justify-center w-full"
-        >
-          {showAllComments ? (
-            <>
-              <ChevronUp size={20} className="mr-1" />
-              Show Fewer Comments
-            </>
-          ) : (
-            <>
-              <ChevronDown size={20} className="mr-1" />
-              Show All Comments
-            </>
-          )}
-        </button>
-      )}
-    </div>
-  ) : (
-    <div className="text-center py-8 text-gray-500">
-      <MessageSquare size={48} className="mx-auto mb-4 text-gray-400" />
-      <p className="text-lg">No comments yet. Be the first to share your thoughts!</p>
-    </div>
-  )}
-</div>
 
         </main>
 
