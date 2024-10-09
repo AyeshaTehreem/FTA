@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Clock, User, ArrowLeft } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const NewsGrid = () => {
@@ -9,6 +9,8 @@ const NewsGrid = () => {
   const scrollRef = useRef(null);
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [factChecks, setFactChecks] = useState([]);
+  const [factLoading, setFactLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,7 +25,19 @@ const NewsGrid = () => {
       }
     };
 
+    const fetchFactChecks = async () => {
+      try {
+        const response = await axios.get('http://localhost:5002/verifications/requests/statuscount/2', { withCredentials: true });
+        setFactChecks(response.data.slice(0, 8));  // Fetch and limit to 8 fact checks
+        setFactLoading(false);
+      } catch (error) {
+        console.error('Error fetching fact checks:', error);
+        setFactLoading(false);
+      }
+    };
+
     fetchBlogs();
+    fetchFactChecks();
   }, []);
 
   const categoryColors = {
@@ -71,70 +85,11 @@ const NewsGrid = () => {
     }
   }, []);
 
-  if (loading) {
+  if (loading || factLoading) {
     return <p>Loading...</p>;
   }
 
   const featuredBlogs = blogs.slice(0, 3);
-
-  const tickerNews = [
-    {
-      id: 1,
-      title: "Expanding Peacefull Political Climate Gears up for this Election",
-      category: "POLITICS",
-      image: "/images/popular/pop1.jpg",
-      isExclusive: false,
-    },
-    {
-      id: 2,
-      title: "Things You Didn't Know About the American Past Politicians",
-      category: "POLITICS",
-      image: "/images/popular/pop7.jpg",
-      isExclusive: false,
-    },
-    {
-      id: 3,
-      title: "New Harvard Student Candidates Presented Minutes Before Results",
-      category: "POLITICS",
-      image: "/images/popular/pop6.jpg",
-      isExclusive: true,
-    },
-    {
-      id: 4,
-      title: "Sanders Gets Respectful Welcome at Conservative College",
-      category: "POLITICS",
-      image: "/images/popular/pop5.jpg",
-      isExclusive: false,
-    },
-    {
-      id: 5,
-      title: "The Hottest Wearable Tech and Smart Gadgets of 2021 Will Blow Your Mind",
-      category: "TECH",
-      image: "/images/popular/pop3.jpg",
-      isExclusive: true,
-    },
-    {
-      id: 6,
-      title: "New Technology Will Help Keep Your Smart Home from Becoming Obsolete",
-      category: "TECH",
-      image: "/images/popular/pop4.jpg",
-      isExclusive: false,
-    },
-    {
-      id: 7,
-      title: "Apple Computers Climb the List of the Top Gadgets in Forbes Magazine",
-      category: "TECH",
-      image: "/images/popular/pop1.jpg",
-      isExclusive: false,
-    },
-    {
-      id: 8,
-      title: "New Soundboard from Bose Review: Pricing is Not Always the Only Criteria",
-      category: "TECH",
-      image: "/images/popular/pop2.jpg",
-      isExclusive: true,
-    },
-  ];
 
   const handleBlogClick = (blogId) => {
     navigate(`/blogs/${blogId}`);
@@ -203,36 +158,35 @@ const NewsGrid = () => {
         ))}
       </div>
       
-      <h2 className="text-3xl font-bold mb-6 text-gray-900">Trending News</h2>
+      {/* Latest Fact Checks Section */}
+      <h2 className="text-3xl font-bold mb-6 text-gray-900">Latest Fact Checks</h2>
       <div className="relative">
         <div
           ref={scrollRef}
           className="flex overflow-x-auto space-x-4 scrollbar-hide"
           style={{ scrollBehavior: 'smooth' }}
         >
-          {tickerNews.map((item) => (
-            <div key={item.id} className="flex-none w-64">
+          {factChecks.map((fact) => (
+            <div key={fact._id} className="flex-none w-80"> {/* Increased width to make images larger */}
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <img src={item.image} alt={item.title} className="w-full h-32 object-cover" />
+                <img src={`https://ftatimesfyp.s3.eu-north-1.amazonaws.com/${fact.imageUrl}`} alt={fact.status} className="w-full h-48 object-cover" /> {/* Increased image height */}
                 <div className="p-4">
-                  <h3 className="text-lg font-bold">{item.title}</h3>
-                  <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full mb-3 ${categoryColors[item.category] || 'bg-gray-500 text-white'}`}>
-                    {item.category}
+                  <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full mb-3 ${fact.status === 'Verified' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                    {fact.status === 'Verified' ? 'Real' : 'Fake'}
                   </span>
-                  <p className="text-gray-600">{item.isExclusive ? 'Exclusive' : 'Read More'}</p>
                 </div>
               </div>
             </div>
           ))}
         </div>
         <div className="absolute top-0 left-0 h-full flex items-center">
-          <button className="bg-white rounded-full p-2 shadow-lg" onClick={() => scroll(-200)}>
-            <ArrowLeft size={24} />
+          <button className="bg-white rounded-full p-3 shadow-lg active:bg-gray-200" onClick={() => scroll(-200)}> {/* Arrow styling */}
+            <ArrowLeft size={28} />
           </button>
         </div>
         <div className="absolute top-0 right-0 h-full flex items-center">
-          <button className="bg-white rounded-full p-2 shadow-lg" onClick={() => scroll(200)}>
-            <ArrowRight size={24} />
+          <button className="bg-white rounded-full p-3 shadow-lg active:bg-gray-200" onClick={() => scroll(200)}> {/* Arrow styling */}
+            <ArrowRight size={28} />
           </button>
         </div>
       </div>
@@ -241,4 +195,3 @@ const NewsGrid = () => {
 };
 
 export default NewsGrid;
-

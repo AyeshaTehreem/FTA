@@ -41,7 +41,25 @@ export const UserProvider = ({ children }) => {
       role,
       isLoggedIn: true,
     });
+  
+
+    // Logging the updated values of the user
+    console.log('User logged in:');
+    console.log('Username:', username);
+    console.log('Email:', email);
+    console.log('Role:', role);
+    console.log('isLoggedIn:', true);
   };
+  useEffect(() => {
+    if (user.isLoggedIn) {
+      console.log('User logged in:');
+      console.log('Username:', user.username);
+      console.log('Email:', user.email);
+      console.log('Role:', user.role);
+      console.log('isLoggedIn:', user.isLoggedIn);
+    }
+  }, [user]);
+  
 
   const logout = () => {
     setUser({

@@ -7,6 +7,7 @@ import Homepages from './components/home/Homepages';
 import PendingImage from './components/Verification/pendingImage';
 import VerifyImage from './components/Verification/verifyimage';
 import ManageVerification from './components/Verification/ManageVerifiedNews';
+import VerifyEmail from './components/loginPage/VerifyEmail'; // Import VerifyEmail
 import ViewVerified from './components/Verification/ViewVerifiedNews';
 import Report from './components/Verification/Report';
 import Login from './components/loginPage/Login';
@@ -33,7 +34,7 @@ const App = () => {
 
   return (
 
-    <UserProvider>
+   
       <Router>
         {isLoading ? (
           <LoadingScreen />
@@ -50,6 +51,8 @@ const App = () => {
               <Route path="/contact" element={<Contact />} />
               <Route path="/blogs" element={<ShowAllBlogs />} />
               <Route path="/blogs/:id" element={<SingleBlogPost />} />
+              <Route path="/verify-email/:token" element={<VerifyEmail />} /> 
+       
 
               <Route
                 path="/editorblog"
@@ -111,7 +114,7 @@ const App = () => {
                 <ChatBot />
 
       </Router>
-    </UserProvider>
+    
   );
 };
 

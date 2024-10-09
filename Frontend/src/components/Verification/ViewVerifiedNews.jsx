@@ -73,15 +73,15 @@ const ViewVerifiedNews = () => {
 
         {/* Grid to display verified news cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {verifiedNews.map((data) => (
+          {verifiedNews.slice().reverse().map((data) => (
             <div key={data._id} className="bg-white rounded-lg shadow-md p-4 text-center border border-green-500">
               <img
                 src={`https://ftatimesfyp.s3.eu-north-1.amazonaws.com/${data.imageUrl}`}
                 alt="Verified News"
                 className="w-full h-40 object-cover rounded-md mb-4"
               />
-              <div className={`text-lg font-bold ${data.status === 'Real' ? 'text-green-600' : 'text-red-600'}`}>
-                {data.status === 'Rejected' ? 'Fake' : data.status}
+              <div className={`text-lg font-bold ${data.status === 'Verified' ? 'text-green-600' : data.status === 'Rejected' ? 'text-red-600' : 'text-gray-600'}`}>
+                {data.status === 'Verified' ? 'Real' : data.status === 'Rejected' ? 'Fake' : data.status}
               </div>
             </div>
           ))}

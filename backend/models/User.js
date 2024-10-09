@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const crypto = require('crypto');
 
 const userSchema = new Schema({
   username: {
@@ -18,8 +19,20 @@ const userSchema = new Schema({
   role: {
     type: String,
     default: 'user'
+  },
+  verified: {
+    type: Boolean,
+    default: false
+  },
+  verificationToken: {
+    type: String,
+    default: ''
   }
 });
+
+userSchema.methods.generateVerificationToken = function() {
+  this.verificationToken = crypto.randomBytes(32).toString('hex');
+};
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

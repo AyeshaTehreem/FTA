@@ -99,9 +99,15 @@ const Header = () => {
         {user?.isLoggedIn && (
           <Link to="/verifyimage" className="text-sm text-gray-600 hover:text-gray-800">VERIFY NEWS</Link>
         )}
-        {user?.isLoggedIn && user.role === 'verifier' && (
+        {user?.isLoggedIn && user?.role === 'verifier' && (
           <Link to="/pendingimages" className="text-sm text-gray-600 hover:text-gray-800">
             PENDING VERIFICATIONS
+          </Link>
+        )}
+
+{user?.isLoggedIn && user?.role === 'admin' && (
+          <Link to="/manageverified" className="text-sm text-gray-600 hover:text-gray-800">
+            MANAGE VERIFICATIONS
           </Link>
         )}
         {user?.isLoggedIn && (
@@ -109,10 +115,10 @@ const Header = () => {
             REPORTS
           </Link>
         )}
-        {user?.isLoggedIn && user.role === 'editor' && (
+        {user?.isLoggedIn && user?.role === 'editor' && (
           <Link to="/editorblog" className="text-sm text-gray-600 hover:text-gray-800">ADD BLOG</Link>
         )}
-        <Link to="/fakenews" className="text-gray-600 hover:text-gray-800">FAKE NEWS</Link>
+        <Link to="/fakenews" className="text-gray-600 hover:text-gray-800">FACT CHECK</Link>
         {user.isLoggedIn ? (
           <button onClick={handleLogout} className="text-gray-600 hover:text-gray-800">LOGOUT</button>
         ) : (
