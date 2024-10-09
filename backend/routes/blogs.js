@@ -154,9 +154,24 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-//single blog
+
+// GET latest 5 blog titles
+
+router.get('/latest', async (req, res) => {
+  try {
+    const latestBlogs = await Blog.find()
+      .sort({ createdAt: -1 }) // Sort by creation date, newest first
+      .limit(5) // Limit to 5 most recent blogs
+      .select('title');
+
+    res.json(latestBlogs);
+  } catch (error) {
+    console.error('Error fetching latest blogs:', error);
+    res.status(500).json({ message: 'Error fetching latest blogs' });
+  }
+});
+
 // GET single blog
-// GET single blog with full comments
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   console.log('Received request for blog ID:', id); // Log the ID

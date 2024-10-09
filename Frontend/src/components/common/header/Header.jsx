@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import axios from 'axios';
 import { UserContext } from "../../../UserContext";
 
@@ -31,43 +31,82 @@ const Header = () => {
     { img: "/images/gallery/g3.jpg", link: "/news/item3", title: "Nulla hendrerit dui in erat varius vestibulum.", category: "TRAVEL" },
     { img: "/images/gallery/g4.jpg", link: "/news/item4", title: "Maecenas dictum lacus in bibendum commodo.", category: "BUSINESS" },
   ];
+  const CACHE_KEY = 'trendingBlogTitles';
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+ 
+const TrendingSection = () => {
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [trendingTexts, setTrendingTexts] = useState([]);
 
-  const TrendingSection = () => {
-    const [currentTextIndex, setCurrentTextIndex] = useState(0);
-    const trendingTexts = [
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-      "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-      "When an unknown printer took a galley of type and scrambled it to make a type specimen book."
-    ];
+  useEffect(() => {
+    const fetchTrendingBlogs = async () => {
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      const cachedTimestamp = localStorage.getItem(`${CACHE_KEY}_timestamp`);
 
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setCurrentTextIndex((prevIndex) => (prevIndex + 1) % trendingTexts.length);
+      if (cachedData && cachedTimestamp) {
+        const now = new Date().getTime();
+        if (now - parseInt(cachedTimestamp) < CACHE_DURATION) {
+          const parsedData = JSON.parse(cachedData);
+          setTrendingTexts(parsedData);
+          return;
+        }
+      }
+
+      try {
+        const response = await axios.get('http://localhost:5000/blogs/latest');
+        const titles = response.data.map(blog => blog.title);
+        setTrendingTexts(titles);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(titles));
+        localStorage.setItem(`${CACHE_KEY}_timestamp`, new Date().getTime().toString());
+      } catch (error) {
+        console.error('Error fetching trending blogs:', error);
+      }
+    };
+
+    fetchTrendingBlogs();
+    const refreshInterval = setInterval(fetchTrendingBlogs, CACHE_DURATION);
+
+    return () => clearInterval(refreshInterval);
+  }, []);
+
+  useEffect(() => {
+    if (trendingTexts.length > 0) {
+      const rotationInterval = setInterval(() => {
+        setCurrentTextIndex((prevIndex) => {
+          const newCurrentTextIndex = (prevIndex + 1) % trendingTexts.length; // Correct variable declaration
+          console.log("New currentTextIndex:", newCurrentTextIndex);
+          return newCurrentTextIndex; // Return the updated index
+        });
       }, 3000);
-      return () => clearInterval(interval);
-    }, []);
-
-    return (
-      <div className="bg-gray-100 py-2 overflow-hidden">
-        <div className="container mx-auto px-4 flex items-center">
-          <span className="bg-black text-white px-2 py-1 text-xs sm:text-sm font-bold mr-4 flex-shrink-0">TRENDING NOW</span>
-          <AnimatePresence>
-            <motion.p
-              key={currentTextIndex}
-              className="text-xs sm:text-sm text-gray-700 truncate"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.5 }}
-            >
-              {trendingTexts[currentTextIndex]}
-            </motion.p>
-          </AnimatePresence>
-        </div>
+  
+      return () => clearInterval(rotationInterval);
+    }
+  }, [trendingTexts]);
+  
+  
+  return (
+    <div className="bg-gray-100 py-2 overflow-hidden">
+      <div className="container mx-auto px-4 flex items-center">
+        <span className="bg-black text-white px-2 py-1 text-xs sm:text-sm font-bold mr-4 flex-shrink-0">
+          TRENDING NOW
+        </span>
+        {trendingTexts.length > 0 && (
+          <motion.p
+            key={currentTextIndex}
+            className="text-xs sm:text-sm text-gray-700 truncate"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.5 }}
+          >
+            {trendingTexts[currentTextIndex]} {/* Display current index */}
+          </motion.p>
+        )}
       </div>
-    );
-  };
-
+    </div>
+  );
+};
+  
   const handleLogout = async () => {
     try {
       const response = await axios.post('http://localhost:5000/auth/logout', {}, { withCredentials: true });
