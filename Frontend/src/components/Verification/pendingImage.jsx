@@ -118,8 +118,9 @@ const PendingImage = () => {
                 alt="Pending verification"
                 className="w-full h-40 object-cover rounded-md mb-4"
               />
-              <h3 className="text-lg font-semibold text-red-600 mb-2">{data.user.username}</h3>
-              <p className="text-gray-500 mb-4">{data.user.email}</p>
+              {/* Use optional chaining to safely access user properties */}
+              <h3 className="text-lg font-semibold text-red-600 mb-2">{data.user?.username || 'Unknown User'}</h3>
+              <p className="text-gray-500 mb-4">{data.user?.email || 'No Email Provided'}</p>
               <div className="flex justify-around items-center">
                 {/* Updated Buttons */}
                 <button
