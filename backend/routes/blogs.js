@@ -61,8 +61,20 @@ router.post('/create', authenticateToken, upload.single('image'), async (req, re
   }
 });
 
+//get latest 5 blogs titles
+router.get('/latest', async (req, res) => {
+  try {
+    const latestBlogs = await Blog.find()
+      .sort({ createdAt: -1 }) // Sort by creation date, newest first
+      .limit(5) // Limit to 5 most recent blogs
+      .select('title');
 
-
+    res.json(latestBlogs);
+  } catch (error) {
+    console.error('Error fetching latest blogs:', error);
+    res.status(500).json({ message: 'Error fetching latest blogs' });
+  }
+});
 // Like a blog post
 router.post('/:id/like', authenticateToken, async (req, res) => {
   try {
@@ -181,25 +193,43 @@ router.get('/:id', async (req, res) => {
 
 
 
-// Get blogs of a certain category with initials
+
+// GET blogs by category
 router.get('/category/:category', async (req, res) => {
+  const category = req.params.category.trim(); // Trim whitespace/newlines
+  console.log('Requested Category:', category); // Log the requested category
+
   try {
-    const blogs = await Blog.find({ categories: req.params.category })
-      .select('title authorName categories createdAt likes comments');
+      
+      const blogs = await Blog.find({ categories: category }) // Direct match
+          .select('_id title imageUrl authorName content categories createdAt likes comments');
 
-    const filteredBlogs = blogs.map(blog => ({
-      title: blog.title,
-      authorName: blog.authorName,
-      categories: blog.categories,
-      createdAt: blog.createdAt,
-      likes: blog.likes.length,
-      comments: blog.comments.length + blog.comments.reduce((count, comment) => count + comment.replies.length, 0)
-    }));
+      if (blogs.length === 0) {
+          return res.status(404).json({ message: 'No blogs found for this category.' });
+      }
 
-    res.json(filteredBlogs);
+      res.json(blogs);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message });
   }
 });
+
+// GET count of blogs by category
+// GET count of blogs by category
+router.get('/category/:category/count', async (req, res) => {
+  const category = req.params.category.trim(); // Trim whitespace/newlines
+  console.log('Requested Category for Count:', category); // Log the requested category for count
+
+  try {
+      // Count the number of blogs in the specified category
+      const count = await Blog.countDocuments({ categories: category });
+
+      res.json({ category: category, count: count }); // Return the category and its count
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+});
+
+
 
 module.exports = router;
