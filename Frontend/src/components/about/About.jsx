@@ -4,6 +4,7 @@ import { Search, AlertTriangle, BarChart2, Shield, ArrowUp, ChevronDown, Chevron
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CounterSection from './CounterSection';
 
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 
 const FeatureCard = ({ icon, title, description }) => {
@@ -90,26 +91,27 @@ const TeamMember = ({ name, role, image, socialLinks, index }) => (
   </motion.div>
 );
 
-const TestimonialCard = ({ name, role, company, testimonial, image }) => (
+
+const TestimonialCard = ({ name, role, company, testimonial }) => (
   <motion.div
     className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center text-center"
     whileHover={{ scale: 1.05 }}
     transition={{ duration: 0.3 }}
   >
-    <img src={image} alt={name} className="w-24 h-24 rounded-full mb-6 object-cover" />
+    {/* Font Awesome icon instead of image */}
+    <i className="fas fa-user fa-4x text-gray-800 mb-6"></i> {/* Font Awesome user icon */}
     <p className="text-gray-600 italic mb-6">"{testimonial}"</p>
     <h4 className="text-xl font-semibold text-gray-800">{name}</h4>
     <p className="text-red-600">{role}, {company}</p>
   </motion.div>
 );
-
 const FakeNewsAuthenticator = () => {
   const features = [
     { icon: <Search size={48} />, title: 'Advanced Source Verification', description: 'Our AI algorithms meticulously analyze the credibility of news sources, cross-referencing them with our extensive database of verified outlets.' },
     { icon: <AlertTriangle size={48} />, title: 'Real-time Fact Checking', description: 'Instantly cross-reference information with our continuously updated database of facts, ensuring you always have the most accurate information.' },
-    { icon: <BarChart2 size={48} />, title: 'Trend Analysis & Prediction', description: 'Identify patterns in fake news spread and predict potential misinformation outbreaks before they happen.' },
+    { icon: <BarChart2 size={48} />, title: 'Trend Analysis & Prediction', description: 'Identify patterns in the spread of fake news spread and then predict potential misinformation outbreaks before they happen again & again.' },
     { icon: <Shield size={48} />, title: 'Personalized User Protection', description: 'Tailored alerts and recommendations based on your reading habits and interests, safeguarding you from targeted misinformation.' },
-    { icon: <Zap size={48} />, title: 'Instant Analysis', description: 'Get results in seconds, allowing you to quickly determine the reliability of any news article or social media post.' },
+    { icon: <Zap size={48} />, title: 'Instant Analysis', description: 'Get the latest results in seconds, allowing you to quickly determine the reliability of any news article/blog or social media post.' },
     { icon: <Globe size={48} />, title: 'Multi-language Support', description: 'Detect and analyze fake news across multiple languages, helping you navigate global information with confidence.' },
     { icon: <Users size={48} />, title: 'Community-driven Reporting', description: 'Leverage the power of our user community to flag and report potential misinformation, enhancing our detection capabilities.' },
     { icon: <BookOpen size={48} />, title: 'Educational Resources', description: 'Access a wealth of resources to improve your critical thinking skills and become a more discerning news consumer.' },
@@ -124,16 +126,29 @@ const FakeNewsAuthenticator = () => {
   ];
 
   const teamMembers = [
-    { name: "Dr. Alex Johnson", role: "Chief AI Researcher", image: "/api/placeholder/300/300", socialLinks: { github: "#", linkedin: "#", twitter: "#" } },
-    { name: "Samantha Lee, Ph.D.", role: "Lead Data Scientist", image: "/api/placeholder/300/300", socialLinks: { github: "#", linkedin: "#", twitter: "#" } },
-    { name: "Michael Chen", role: "UX/UI Design Director", image: "/api/placeholder/300/300", socialLinks: { github: "#", linkedin: "#", twitter: "#" } },
-    { name: "Emily Taylor, M.A.", role: "Head of Content Strategy", image: "/api/placeholder/300/300", socialLinks: { github: "#", linkedin: "#", twitter: "#" } },
+    { name: "Ayesha Tehreem", role: "Full Stack Developer", image: "images/popular/Ayesha1.jpeg", socialLinks: { github: "#", linkedin: "#", twitter: "#" } },
+    { name: "Fahim Ahmed", role: "Full Stack Developer", image: "/images/popular/Fahim.jpeg", socialLinks: { github: "#", linkedin: "#", twitter: "#" } },
+    { name: "Tayyaba Anum.", role: "Full Stack Developer",  image: "/images/popular/Tayyaba.jpeg", socialLinks: { github: "#", linkedin: "#", twitter: "#" } },
   ];
-
   const testimonials = [
-    { name: "John Smith", role: "Editor-in-Chief", company: "Global News Network", testimonial: "This tool has revolutionized our fact-checking process. It's an indispensable asset in our newsroom.", image: "/api/placeholder/100/100" },
-    { name: "Sarah Johnson", role: "Social Media Manager", company: "Tech Innovations Inc.", testimonial: "The real-time analysis has helped us maintain credibility in our fast-paced social media environment.", image: "/api/placeholder/100/100" },
-    { name: "David Lee", role: "Professor", company: "University of Technology", testimonial: "An excellent educational tool. It's helping my students develop critical thinking skills for the digital age.", image: "/api/placeholder/100/100" },
+    {
+      name: "John Smith",
+      role: "Editor-in-Chief",
+      company: "Global News Network",
+      testimonial: "This tool has revolutionized our fact-checking process. It's an indispensable asset in our newsroom."
+    },
+    {
+      name: "Sarah Johnson",
+      role: "Social Media Manager",
+      company: "Tech Innovations Inc.",
+      testimonial: "The real-time analysis has helped us maintain credibility in our fast-paced social media environment."
+    },
+    {
+      name: "David Lee",
+      role: "Professor",
+      company: "University of Technology",
+      testimonial: "An excellent educational tool. It's helping my students develop critical thinking skills for the digital age."
+    },
   ];
 
   const chartData = [
@@ -243,7 +258,7 @@ const FakeNewsAuthenticator = () => {
            <div className="w-full border-t-4 border-red-200"></div>
          </div>
          <div className="relative flex justify-between">
-           {['Input Article', 'AI Analysis', 'Fact Checking', 'User Alert'].map((step, index) => (
+           {['Input Article', 'AI Analysis', 'Fact Checking', 'Blockchain', 'User Alert'].map((step, index) => (
              <motion.div
                key={index}
                className="text-center"
@@ -318,51 +333,54 @@ const FakeNewsAuthenticator = () => {
 
    {/* Team Section */}
    <section className="py-20 px-4 bg-gray-50">
-     <div className="max-w-6xl mx-auto">
-       <motion.h2
-         className="text-5xl font-bold text-center mb-16 text-gray-800"
-         initial={{ opacity: 0, y: -50 }}
-         animate={{ opacity: 1, y: 0 }}
-         transition={{ duration: 0.5 }}
-       >
-         Meet Our Expert Team
-       </motion.h2>
-       <motion.div
-         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12"
-         initial={{ opacity: 0 }}
-         animate={{ opacity: 1 }}
-         transition={{ duration: 0.5, delay: 0.2 }}
-       >
-         {teamMembers.map((member, index) => (
-           <TeamMember key={index} {...member} index={index} />
-         ))}
-       </motion.div>
-     </div>
-   </section>
+      <div className="max-w-6xl mx-auto">
+        <motion.h2
+          className="text-5xl font-bold text-center mb-16 text-gray-800"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Meet Our Expert Team
+        </motion.h2>
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          {teamMembers.map((member, index) => (
+            <TeamMember key={index} {...member} index={index} />
+          ))}
+        </motion.div>
+      </div>
+    </section>
+
+
+
 
    {/* Testimonials Section */}
    <section className="py-20 px-4 bg-gradient-to-b from-white to-gray-100">
-     <div className="max-w-6xl mx-auto">
-       <motion.h2
-         className="text-5xl font-bold text-center mb-16 text-gray-800"
-         initial={{ opacity: 0, y: -50 }}
-         animate={{ opacity: 1, y: 0 }}
-         transition={{ duration: 0.5 }}
-       >
-         What Our Users Say
-       </motion.h2>
-       <motion.div
-         className="grid grid-cols-1 md:grid-cols-3 gap-12"
-         initial={{ opacity: 0 }}
-         animate={{ opacity: 1 }}
-         transition={{ duration: 0.5, delay: 0.2 }}
-       >
-         {testimonials.map((testimonial, index) => (
-           <TestimonialCard key={index} {...testimonial} />
-         ))}
-       </motion.div>
-     </div>
-   </section>
+  <div className="max-w-6xl mx-auto">
+    <motion.h2
+      className="text-5xl font-bold text-center mb-16 text-gray-800"
+      initial={{ opacity: 0, y: -50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      What Our Users Say
+    </motion.h2>
+    <motion.div
+      className="grid grid-cols-1 md:grid-cols-3 gap-12"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
+      {testimonials.map((testimonial, index) => (
+        <TestimonialCard key={index} {...testimonial} />
+      ))}
+    </motion.div>
+  </div>
+</section>
 
    {/* Call-to-Action Section */}
    <section className="py-20 px-4 bg-gradient-to-r from-red-600 to-red-800 text-white">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import axios from 'axios';
 import { UserContext } from "../../../UserContext";
 
@@ -24,34 +24,77 @@ const Header = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
   const newsItems = [
     { img: "/images/life/life1.jpg", link: "/news/item1", title: "Lorem ipsum dolor sit amet, consectetur adipiscing.", category: "FASHION" },
     { img: "/images/gallery/g2.jpg", link: "/news/item2", title: "Proin quis massa tincidunt justo cursus dapibus.", category: "SPORTS" },
     { img: "/images/gallery/g3.jpg", link: "/news/item3", title: "Nulla hendrerit dui in erat varius vestibulum.", category: "TRAVEL" },
     { img: "/images/gallery/g4.jpg", link: "/news/item4", title: "Maecenas dictum lacus in bibendum commodo.", category: "BUSINESS" },
   ];
+  const CACHE_KEY = 'trendingBlogTitles';
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
   const TrendingSection = () => {
     const [currentTextIndex, setCurrentTextIndex] = useState(0);
-    const trendingTexts = [
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-      "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-      "When an unknown printer took a galley of type and scrambled it to make a type specimen book."
-    ];
+    const [trendingTexts, setTrendingTexts] = useState([]);
 
     useEffect(() => {
-      const interval = setInterval(() => {
-        setCurrentTextIndex((prevIndex) => (prevIndex + 1) % trendingTexts.length);
-      }, 3000);
-      return () => clearInterval(interval);
+      const fetchTrendingBlogs = async () => {
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        const cachedTimestamp = localStorage.getItem(`${CACHE_KEY}_timestamp`);
+
+        if (cachedData && cachedTimestamp) {
+          const now = new Date().getTime();
+          if (now - parseInt(cachedTimestamp) < CACHE_DURATION) {
+            const parsedData = JSON.parse(cachedData);
+            setTrendingTexts(parsedData);
+            return;
+          }
+        }
+
+        try {
+          const response = await axios.get('http://localhost:5000/blogs/latest');
+          const titles = response.data.map(blog => blog.title);
+          setTrendingTexts(titles);
+          localStorage.setItem(CACHE_KEY, JSON.stringify(titles));
+          localStorage.setItem(`${CACHE_KEY}_timestamp`, new Date().getTime().toString());
+        } catch (error) {
+          console.error('Error fetching trending blogs:', error);
+        }
+      };
+
+      fetchTrendingBlogs();
+      const refreshInterval = setInterval(fetchTrendingBlogs, CACHE_DURATION);
+
+      return () => clearInterval(refreshInterval);
     }, []);
+
+    useEffect(() => {
+      if (trendingTexts.length > 0) {
+        const rotationInterval = setInterval(() => {
+          setCurrentTextIndex((prevIndex) => {
+            const newCurrentTextIndex = (prevIndex + 1) % trendingTexts.length; // Correct variable declaration
+            console.log("New currentTextIndex:", newCurrentTextIndex);
+            return newCurrentTextIndex; // Return the updated index
+          });
+        }, 3000);
+
+        return () => clearInterval(rotationInterval);
+      }
+    }, [trendingTexts]);
+
 
     return (
       <div className="bg-gray-100 py-2 overflow-hidden">
         <div className="container mx-auto px-4 flex items-center">
-          <span className="bg-black text-white px-2 py-1 text-xs sm:text-sm font-bold mr-4 flex-shrink-0">TRENDING NOW</span>
-          <AnimatePresence>
+          <span className="bg-black text-white px-2 py-1 text-xs sm:text-sm font-bold mr-4 flex-shrink-0">
+            TRENDING NOW
+          </span>
+          {trendingTexts.length > 0 && (
             <motion.p
               key={currentTextIndex}
               className="text-xs sm:text-sm text-gray-700 truncate"
@@ -60,9 +103,9 @@ const Header = () => {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.5 }}
             >
-              {trendingTexts[currentTextIndex]}
+              {trendingTexts[currentTextIndex]} {/* Display current index */}
             </motion.p>
-          </AnimatePresence>
+          )}
         </div>
       </div>
     );
@@ -94,7 +137,6 @@ const Header = () => {
       </div>
       <div className={`flex ${isSidebar ? 'flex-col space-y-2' : 'flex-wrap space-x-2 sm:space-x-4'} text-xs sm:text-sm`}>
         <Link to="/contact" className="text-gray-600 hover:text-gray-800">CONTACT</Link>
-        <Link to="/donation" className="text-gray-600 hover:text-gray-800">DONATION</Link>
         <Link to="/blogs" className="text-gray-600 hover:text-gray-800">BLOGS</Link>
         {user?.isLoggedIn && (
           <Link to="/verifyimage" className="text-sm text-gray-600 hover:text-gray-800">VERIFY NEWS</Link>
@@ -134,7 +176,7 @@ const Header = () => {
         {windowWidth >= 640 && <TopBar />}
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center">
-            <button 
+            <button
               className="text-2xl mr-4 sm:hidden"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
@@ -161,10 +203,38 @@ const Header = () => {
             <li className="relative group" onMouseEnter={() => setShowMegamenu(true)} onMouseLeave={() => setShowMegamenu(false)}>
               <Link to="/mega-menu" className="text-sm font-semibold text-gray-800 hover:text-red-600">MEGA MENU ▼</Link>
             </li>
-            <li><Link to="/pages" className="text-sm font-semibold text-red-600">PAGES ▼</Link></li>
+            <li className="relative">
+  <button onClick={toggleDropdown} className="text-sm font-semibold text-red-600">
+    PAGES ▼
+  </button>
+  {isDropdownOpen && (
+    <ul className="absolute bg-white shadow-lg mt-2 rounded z-50">
+      <li>
+        <Link
+          to="/fakenews"
+          className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
+          onClick={() => setIsDropdownOpen(false)}
+        >
+          FAKE NEWS
+        </Link>
+      </li>
+      <li>
+        <Link
+          to="/blogs"
+          className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
+          onClick={() => setIsDropdownOpen(false)}
+        >
+          BLOGS
+        </Link>
+      </li>
+    </ul>
+  )}
+</li>
+
+
             <li><Link to="/aboutpage" className="text-sm font-semibold text-gray-800 hover:text-red-600">ABOUT US</Link></li>
-            <li><Link to="/lifestyle" className="text-sm font-semibold text-gray-800 hover:text-red-600">LIFESTYLE</Link></li>
-            <li><Link to="/lifestylenews" className="text-sm font-semibold text-gray-800 hover:text-red-600">NEWS</Link></li>
+            <li><Link to="/contact" className="text-sm font-semibold text-gray-800 hover:text-red-600">CONTACT US</Link></li>
+            <li><Link to="/fakenews" className="text-sm font-semibold text-gray-800 hover:text-red-600">FAKE NEWS</Link></li>
           </ul>
         </nav>
         {showMegamenu && (
@@ -190,7 +260,7 @@ const Header = () => {
               <span className="center text-gray-800">FTA</span>
               <span className="center text-red-600">TIMES.</span>
             </Link>
-            <button 
+            <button
               className="text-2xl"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
@@ -205,7 +275,7 @@ const Header = () => {
               <li><Link to="/pages" className="text-sm font-semibold text-red-600">PAGES</Link></li>
               <li><Link to="/aboutpage" className="text-sm font-semibold text-gray-800 hover:text-red-600">ABOUT US</Link></li>
               <li><Link to="/lifestyle" className="text-sm font-semibold text-gray-800 hover:text-red-600">LIFESTYLE</Link></li>
-              <li><Link to="/lifestylenews" className="text-sm font-semibold text-gray-800 hover:text-red-600">NEWS</Link></li>
+              <li><Link to="/lifestylenews" className="text-sm font-semibold text-gray-800 hover:text-red-600">FakeNews</Link></li>
             </ul>
           </nav>
         </div>

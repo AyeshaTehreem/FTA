@@ -11,8 +11,8 @@ const BlogPostForm = () => {
   const [error, setError] = useState('');
 
   const categories = [
-    'Property', 'Sea', 'Programming', 'Life Style', 'Technology',
-    'Framework', 'Sport', 'Game', 'WFH'
+    'Property', 'Programming', 'Life Style', 'Technology',
+    'Framework', 'Sport', 'Game',
   ];
 
   const handleImageChange = (e) => {

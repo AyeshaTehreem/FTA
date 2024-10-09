@@ -67,8 +67,7 @@ const Contact = () => {
           transition={{ type: 'spring', stiffness: 100, damping: 20 }}
           style={{ color: currentColor }}
         >
-          Contact TruthGuard News
-        </motion.h1>
+          Contact FTA TIMES        </motion.h1>
 
         <motion.div
           variants={sectionVariants}
@@ -84,9 +83,9 @@ const Contact = () => {
             <h2 className="text-3xl font-semibold mb-6" style={{ color: currentColor }}>Contact Information</h2>
             <div className="space-y-6">
               {[
-                { Icon: MapPin, text: "123 Truth Street, Factville, FA 12345, USA" },
-                { Icon: Phone, text: "+1 (555) 123-4567" },
-                { Icon: Mail, text: "contact@truthguardnews.com" }
+                { Icon: MapPin, text: "Air University, E9 Islamabad" },
+                { Icon: Phone, text: "+923088899273" },
+                { Icon: Mail, text: "ftatimes@gmail.com" }
               ].map((item, index) => (
                 <motion.div 
                   key={index}

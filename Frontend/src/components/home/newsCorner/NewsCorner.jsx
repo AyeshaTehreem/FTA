@@ -82,37 +82,74 @@ const NewsSection = () => {
       
       <div className="flex flex-wrap -mx-4">
         {/* Left sidebar */}
-        <div className="w-full md:w-1/4 px-4">
+                {/* Left sidebar */}
+                <div className="w-full md:w-1/4 px-4">
           <div className="sticky top-4">
             <motion.div
-              whileHover={{ scale: 1.05 }}
+              className="bg-white shadow-lg rounded-lg p-6 mb-8"
+              whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
-              className="bg-white shadow-2xl rounded-lg p-6 mb-8 transform hover:rotate-1"
             >
-              <h2 className="text-2xl font-bold mb-4 text-red-600 uppercase border-b-2 border-red-600 pb-2">
+              <h2 className="text-xl font-bold mb-4 text-red-600 uppercase">
                 Tech & Innovation
               </h2>
-              <motion.div 
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
+              <div className="space-y-4">
+                <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
+                  <img
+                    src="/images/life/life3.jpg"
+                    alt="Laptop"
+                    className="w-full mb-2 rounded-lg"
+                  />
+                  <h3 className="font-semibold">
+                    Phasellus placerat massa nec metus ornare molestie.
+                  </h3>
+                  <p className="text-xs text-red-600 uppercase">Europe - Jan 4, 2021</p>
+                  <p className="text-sm">
+                    To understand the new politics stance and other pro nationals of recent...
+                  </p>
+                </motion.div>
+                <div className="space-y-2">
+                  {[
+                    'Trainings are getting really hard reaching the final',
+                    'The victory against The Sharks brings us closer to the Final',
+                    'The next match against The Clovers will be this Friday',
+                  ].map((text, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <p className="font-semibold">{text}</p>
+                      <p className="text-xs text-gray-500">Jan 4, 2021</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+            <motion.div
+              className="bg-white shadow-lg rounded-lg p-6"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
+              <h2 className="text-xl font-bold mb-4 text-red-600 uppercase">
+                Editor's Picks
+              </h2>
+              <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
                 <img
-                  src="/images/life/life3.jpg"
-                  alt="Laptop"
-                  className="w-full mb-4 rounded-lg shadow-lg transform hover:scale-105 transition duration-300"
+                  src="/images/life/life2.jpg"
+                  alt="City"
+                  className="w-full rounded-lg"
                 />
-                <h3 className="font-semibold text-lg mb-2 hover:text-red-600 transition duration-300">
-                  The Future of AI in Everyday Life
+                <h3 className="font-semibold mt-2">
+                  Donec scelerisque massa quis ante facilisis, non pulvinar.
                 </h3>
-                <p className="text-xs text-red-600 uppercase mb-2">Global - June 15, 2024</p>
-                <p className="text-sm">
-                  Exploring the integration of artificial intelligence in our daily routines and its potential impact...
-                </p>
+                <p className="text-xs text-red-600 uppercase">Europe - Jan 4, 2021</p>
               </motion.div>
             </motion.div>
           </div>
         </div>
+      
 
         {/* Main content */}
         <div className="w-full md:w-1/2 px-4">
@@ -184,6 +221,7 @@ const NewsSection = () => {
             ))}
           </div>
         </div>
+
 
         {/* Right sidebar */}
         <div className="w-full md:w-1/4 px-4">
