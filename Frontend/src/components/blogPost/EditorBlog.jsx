@@ -11,8 +11,8 @@ const BlogPostForm = () => {
   const [error, setError] = useState('');
 
   const categories = [
-    'Property', 'Sea', 'Programming', 'Life Style', 'Technology',
-    'Framework', 'Sport', 'Game', 'WFH'
+    'Property', 'Programming', 'Life Style', 'Technology',
+    'Framework', 'Sport', 'Game',
   ];
 
   const handleImageChange = (e) => {
@@ -37,7 +37,7 @@ const BlogPostForm = () => {
 
     try {
       setUploading(true); // Set uploading state to true
-      const response = await axios.post('http://localhost:5000/blogs/create', formData, {
+      const response = await axios.post('http://localhost:5002/blogs/create', formData, {
         headers: {
           'Content-Type': 'multipart/form-data', // Ensure multipart/form-data is set
         },

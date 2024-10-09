@@ -20,7 +20,7 @@ const SingleBlogPost = () => {
   const [authorInfo, setAuthorInfo] = useState(null);
   const [newComment, setNewComment] = useState('');
   const [showAllComments, setShowAllComments] = useState(false);
-  const API_BASE_URL = 'http://localhost:5000/blogs';
+  const API_BASE_URL = 'http://localhost:5002/blogs';
 
   // Fetch blogs from backend
   const fetchMostReadBlogs = async () => {

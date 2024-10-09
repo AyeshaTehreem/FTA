@@ -18,7 +18,7 @@ const ViewVerifiedNews = () => {
   // Function to fetch verified news
   const fetchVerifiedNews = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/verifications/requests/statuscount/2', { withCredentials: true });
+      const response = await axios.get('http://localhost:5002/verifications/requests/statuscount/2', { withCredentials: true });
       setVerifiedNews(response.data);
     } catch (error) {
       console.error('Error fetching verified news:', error);

@@ -12,7 +12,7 @@ const Report = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/verifications/reports', {
+        const response = await axios.get('http://localhost:5002/verifications/reports', {
           withCredentials: true, // Include cookies for authentication
         });
         setReports(response.data);

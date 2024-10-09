@@ -18,6 +18,7 @@ import ShowAllBlogs from './components/blogPost/ShowAllBlogs';
 import AboutPage from './components/about/About';
 import LoadingScreen from './components/LoadingScreen';
 import ThemeToggle from './components/ThemeToggle';
+import ChatBot from './components/ChatBot';
 const App = () => {
   const { user } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(true);
@@ -107,6 +108,8 @@ const App = () => {
             <Footer />
           </>
         )}
+                <ChatBot />
+
       </Router>
     </UserProvider>
   );
