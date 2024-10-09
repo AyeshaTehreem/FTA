@@ -17,7 +17,6 @@ import EditorBlog from './components/blogPost/EditorBlog';
 import ShowAllBlogs from './components/blogPost/ShowAllBlogs';
 import AboutPage from './components/about/About';
 import LoadingScreen from './components/LoadingScreen';
-import ThemeToggle from './components/ThemeToggle';
 import ChatBot from './components/ChatBot';
 const App = () => {
   const { user } = useContext(UserContext);
@@ -41,7 +40,6 @@ const App = () => {
           <>
             <Header />
 
-            <ThemeToggle />
             <Routes>
 
               <Route path="/" element={<Homepages />} />
