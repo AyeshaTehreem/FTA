@@ -60,7 +60,8 @@ const Sidebar = () => {
     { name: 'Heavy Style', count: 19 },
   ];
 
-  const tags = ['NEWS', 'IMAGE', 'MUSIC', 'VIDEO', 'AUDIO', 'FASHION', 'LATEST', 'TRENDY', 'SPECIAL', 'RECIPE', 'SPORTS'];
+  const tags = ['Property', 'Programming', 'Life Style', 'Technology',
+    'Framework', 'Sport', 'Game',];
 
   const archives = [
     { month: 'March 2017', count: 22 },
