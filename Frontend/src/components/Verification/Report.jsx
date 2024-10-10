@@ -15,7 +15,7 @@ const Report = () => {
         const response = await axios.get('http://localhost:5002/verifications/reports', {
           withCredentials: true, // Include cookies for authentication
         });
-        setReports(response.data);
+        setReports(response.data.reverse());
       } catch (error) {
         console.error('Error fetching reports:', error.response ? error.response.data : error.message);
       }

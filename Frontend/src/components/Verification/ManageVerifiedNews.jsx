@@ -38,7 +38,7 @@ const ManageVerifiedNews = () => {
   const fetchVerifiedNews = async () => {
     try {
       const response = await axios.get('http://localhost:5002/verifications/requests/statuscount/1', { withCredentials: true });
-      setVerifiedNews(response.data);
+      setVerifiedNews(response.data.reverse());
     } catch (error) {
       console.error('Error fetching verified news:', error);
     } finally {

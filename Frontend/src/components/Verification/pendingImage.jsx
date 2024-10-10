@@ -24,7 +24,7 @@ const PendingImage = () => {
   const fetchPendingImages = async () => {
     try {
       const response = await axios.get('http://localhost:5002/verifications/pending', { withCredentials: true });
-      setPendingImages(response.data);
+      setPendingImages(response.data.reverse());
     } catch (error) {
       console.error('Error fetching pending images:', error);
     } finally {
