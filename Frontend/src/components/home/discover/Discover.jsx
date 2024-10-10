@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Clock, User, Cloud, Wind, Droplet, Mail } from 'lucide-react';
+import axios from 'axios';
 import WeatherWidget from './WeatherWidgets';
+import { Link } from 'react-router-dom';
+
 
 const NewsTicker = ({ items }) => (
   <div className="bg-red-600 text-white py-2 px-4 overflow-hidden">
@@ -16,7 +19,6 @@ const NewsTicker = ({ items }) => (
     </motion.div>
   </div>
 );
-
 <WeatherWidget/>
 
 const SmallArticleCard = ({ article, index }) => (
@@ -169,15 +171,15 @@ const NewsletterSidebar = () => {
         transition={{ duration: 0.2 }}
       />
       <motion.button
-        className="w-full bg-red-600 text-white py-2 rounded font-semibold"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        Sign Up Now
-      </motion.button>
-      <p className="text-xs text-gray-500 mt-4 text-center">
-        By signing up, you agree to the terms & conditions
-      </p>
+  className="w-full bg-red-600 text-white py-2 rounded font-semibold"
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+>
+  <Link to="/login" className="text-white">
+    Sign Up Now
+  </Link>
+</motion.button>
+      <p className="text-xs text-gray-400 mt-2 text-center">You can unsubscribe at any time.</p>
     </motion.div>
   );
 };
@@ -206,12 +208,30 @@ const CategorizedLatestNews = ({ articles }) => {
 };
 
 const App = () => {
-  const tickerItems = [
-    "Breaking: Major earthquake strikes Pacific region",
-    "Global stock markets hit record highs",
-    "New COVID-19 variant discovered in South America",
-    "Tech company announces revolutionary product launch"
-  ];
+  const [tickerItems, setTickerItems] = useState([]);
+  const [currentArticleIndex, setCurrentArticleIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchLatestBlogs = async () => {
+      try {
+        const response = await axios.get('http://localhost:5002/blogs/latest'); // Replace with your API endpoint
+        const titles = response.data.map(blog => blog.title); // Assuming the response contains an array of blog objects with a 'title' field
+        setTickerItems(titles);
+      } catch (error) {
+        console.error('Error fetching latest blogs:', error);
+      }
+    };
+
+    fetchLatestBlogs();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentArticleIndex((prevIndex) => (prevIndex + 1) % allArticles.length);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const latestArticles = [
     {
@@ -246,6 +266,7 @@ const App = () => {
     }
   ];
 
+
   const featuredArticle = {
     title: "The Impact of Cultural Diversity on Fashion Trends",
     excerpt: "Exploring the Rich Tapestry of Global Fashion: How Cultural Diversity Shapes Trends and Inspires Innovation Across the Industry!",
@@ -257,21 +278,22 @@ const App = () => {
 
   const secondaryArticles = [
     {
-      title: "Sustainable Fabrics and Materials Revolutionizing the Fashion Industry",
-      excerpt: "How eco-friendly materials are changing the face of fashion.",
-      image: "/images/life/life4.jpg",
-      category: "Fashion",
-      author: "John Doe",
-      date: "April 14, 2024"
+      title: "5 Tips for Effective Time Management",
+      excerpt: "Maximize your productivity with these essential time management techniques.",
+      image: "/images/life/life3.jpg",
+      category: "Lifestyle",
+      author: "Emma Watson",
+      date: "April 10, 2024"
     },
     {
-      title: "The Rise of Virtual Fashion Shows and Digital Clothing",
-      excerpt: "Exploring the intersection of technology and fashion in the digital age.",
-      image: "/images/life/life3.jpg",
-      category: "Technology",
-      author: "Jane Smith",
-      date: "April 13, 2024"
-    }
+      title: "How to Stay Healthy During the Winter",
+      excerpt: "Simple ways to maintain your health and well-being in the colder months.",
+      image: "/images/life/life4.jpg",
+      category: "Health",
+      author: "Liam Neeson",
+      date: "April 5, 2024"
+    },
+    // Add more articles as needed
   ];
 
   const popularArticles = [
@@ -283,15 +305,6 @@ const App = () => {
   ];
 
   const allArticles = [featuredArticle, ...secondaryArticles];
-  const [currentArticleIndex, setCurrentArticleIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentArticleIndex((prevIndex) => (prevIndex + 1) % allArticles.length);
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div className="bg-gray-100 min-h-screen">
