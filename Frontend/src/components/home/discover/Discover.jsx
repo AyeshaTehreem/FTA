@@ -20,7 +20,6 @@ const NewsTicker = ({ items }) => (
   </div>
 );
 <WeatherWidget/>
-
 const SmallArticleCard = ({ article, index }) => (
   <motion.div
     className="mb-6 pb-6 border-b border-gray-200 last:border-b-0"
@@ -36,7 +35,6 @@ const SmallArticleCard = ({ article, index }) => (
     <p className="text-sm text-gray-600 line-clamp-2">{article.excerpt}</p>
   </motion.div>
 );
-
 const FeaturedArticle = ({ article }) => (
   <motion.div 
     className="mb-12"
@@ -46,8 +44,8 @@ const FeaturedArticle = ({ article }) => (
     transition={{ duration: 0.5 }}
   >
     <motion.img 
-      src={article.image} 
-      alt="" 
+      src={`https://ftatimesfyp.s3.eu-north-1.amazonaws.com/${article.imageUrl}`}
+      alt={article.status}
       className="w-full h-48 sm:h-64 md:h-96 object-cover mb-4 rounded-lg"
       initial={{ opacity: 0, scale: 1.05 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -58,15 +56,10 @@ const FeaturedArticle = ({ article }) => (
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
-      <span className="text-sm font-medium text-red-600 mb-2 block">{article.category}</span>
-      <h2 className="text-2xl sm:text-3xl font-bold mb-3">{article.title}</h2>
-      <p className="text-gray-600 mb-4">{article.excerpt}</p>
-      <div className="flex items-center text-sm text-gray-500">
-        <User size={14} className="mr-1" />
-        <span className="mr-4">{article.author}</span>
-        <Clock size={14} className="mr-1" />
-        <span>{article.date}</span>
-      </div>
+      <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full mb-3 ${article.status === 'Verified' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+        {article.status === 'Verified' ? 'Real' : 'Fake'}
+      </span>
+ 
     </motion.div>
   </motion.div>
 );
@@ -84,7 +77,11 @@ const SecondaryArticleCard = ({ article, index }) => (
       whileHover={{ scale: 1.1 }}
       transition={{ duration: 0.3 }}
     >
-      <img src={article.image} alt="" className="w-full h-full object-cover" />
+      <img 
+        src={`https://ftatimesfyp.s3.eu-north-1.amazonaws.com/${article.imageUrl}`} 
+        alt={article.status} 
+        className="w-full h-full object-cover"
+      />
       <motion.div
         className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"
         initial={{ opacity: 0 }}
@@ -92,35 +89,27 @@ const SecondaryArticleCard = ({ article, index }) => (
         transition={{ duration: 0.3 }}
       />
       <motion.span
-        className="absolute bottom-4 left-4 text-white font-bold text-lg"
+        className={`absolute bottom-4 left-4 text-white font-bold text-lg px-3 py-1 rounded-full ${article.status === 'Verified' ? 'bg-green-500' : 'bg-red-500'}`}
         initial={{ y: 20, opacity: 0 }}
         whileHover={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        {article.category}
+        {article.status === 'Verified' ? 'Real' : 'Fake'}
       </motion.span>
     </motion.div>
     <div className="p-6">
-      <h3 className="text-xl font-semibold mb-2 line-clamp-2 h-14">{article.title}</h3>
-      <p className="text-sm text-gray-600 mb-4 line-clamp-2">{article.excerpt}</p>
-      <div className="flex items-center justify-between text-xs text-gray-500">
-        <div className="flex items-center">
-          <User size={12} className="mr-1" />
-          <span className="mr-3">{article.author}</span>
-          <Clock size={12} className="mr-1" />
-          <span>{article.date}</span>
-        </div>
-        <motion.button
-          className="flex items-center text-red-600 font-semibold"
-          whileHover={{ x: 5 }}
-          transition={{ duration: 0.2 }}
-        >
-          Read More <ArrowRight size={14} className="ml-1" />
-        </motion.button>
-      </div>
+     
+      <motion.button
+        className="flex items-center text-red-600 font-semibold"
+        whileHover={{ x: 5 }}
+        transition={{ duration: 0.2 }}
+      >
+        
+      </motion.button>
     </div>
   </motion.div>
 );
+
 
 const AdWidget = () => (
   <div className="bg-gray-200 p-4 rounded-lg mb-8">
@@ -210,6 +199,23 @@ const CategorizedLatestNews = ({ articles }) => {
 const App = () => {
   const [tickerItems, setTickerItems] = useState([]);
   const [currentArticleIndex, setCurrentArticleIndex] = useState(0);
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await axios.get('http://localhost:5002/verifications/requests/statuscount/2', { withCredentials: true });
+        setArticles(response.data); // Assuming response.data is an array of articles
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
 
   useEffect(() => {
     const fetchLatestBlogs = async () => {
@@ -227,11 +233,18 @@ const App = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentArticleIndex((prevIndex) => (prevIndex + 1) % allArticles.length);
+      setCurrentArticleIndex((prevIndex) => (prevIndex + 1) % articles.length);
     }, 10000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [articles.length]); // Ensure this runs when the articles length changes
+
+  if (loading) {
+    return <div>Loading...</div>; // Loading state
+  }
+
+  const featuredArticle = articles[0]; // Get the first article for the featured display
+  const secondaryArticles = articles.slice(1, 3);
 
   const latestArticles = [
     {
@@ -240,24 +253,9 @@ const App = () => {
       category: "Travel",
       date: "2 hours ago"
     },
-    {
-      title: "Artificial Intelligence in Healthcare: Revolutionizing Patient Care",
-      excerpt: "How AI is transforming diagnostics, treatment plans, and medical research.",
-      category: "Technology",
-      date: "4 hours ago"
-    },
-    {
-      title: "The Future of Work: Remote vs. Office-Based Employment",
-      excerpt: "Analyzing the pros and cons of different work models in the post-pandemic era.",
-      category: "Business",
-      date: "6 hours ago"
-    },
-    {
-      title: "New Breakthrough in Quantum Computing",
-      excerpt: "Scientists achieve major milestone in quantum supremacy.",
-      category: "Technology",
-      date: "8 hours ago"
-    },
+   
+   
+   
     {
       title: "Eco-Tourism: Balancing Adventure and Conservation",
       excerpt: "How responsible travel is shaping the future of tourism industry.",
@@ -267,34 +265,8 @@ const App = () => {
   ];
 
 
-  const featuredArticle = {
-    title: "The Impact of Cultural Diversity on Fashion Trends",
-    excerpt: "Exploring the Rich Tapestry of Global Fashion: How Cultural Diversity Shapes Trends and Inspires Innovation Across the Industry!",
-    image: "/images/life/life2.jpg",
-    category: "Fashion",
-    author: "Sophie Ellis",
-    date: "April 15, 2024"
-  };
-
-  const secondaryArticles = [
-    {
-      title: "5 Tips for Effective Time Management",
-      excerpt: "Maximize your productivity with these essential time management techniques.",
-      image: "/images/life/life3.jpg",
-      category: "Lifestyle",
-      author: "Emma Watson",
-      date: "April 10, 2024"
-    },
-    {
-      title: "How to Stay Healthy During the Winter",
-      excerpt: "Simple ways to maintain your health and well-being in the colder months.",
-      image: "/images/life/life4.jpg",
-      category: "Health",
-      author: "Liam Neeson",
-      date: "April 5, 2024"
-    },
-    // Add more articles as needed
-  ];
+  
+  
 
   const popularArticles = [
     { title: "South Africa bounce back on eventful day" },
@@ -305,7 +277,6 @@ const App = () => {
   ];
 
   const allArticles = [featuredArticle, ...secondaryArticles];
-
   return (
     <div className="bg-gray-100 min-h-screen">
       <NewsTicker items={tickerItems} />
@@ -318,11 +289,11 @@ const App = () => {
           </div>
           <div className="md:col-span-6">
             <AnimatePresence mode="wait">
-              <FeaturedArticle key={currentArticleIndex} article={allArticles[currentArticleIndex]} />
+              {featuredArticle && <FeaturedArticle key={featuredArticle._id} article={featuredArticle} />}
             </AnimatePresence>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              {secondaryArticles.map((article, index) => (
-                <SecondaryArticleCard key={index} article={article} index={index} />
+              {secondaryArticles.map((article) => (
+                <SecondaryArticleCard key={article._id} article={article} />
               ))}
             </div>
           </div>
