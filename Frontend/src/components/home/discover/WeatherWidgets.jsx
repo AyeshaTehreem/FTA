@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const WeatherWidget = () => {
-  const [location, setLocation] = useState("Loading...");
+  const [location, setLocation] = useState('Loading...');
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [date, setDate] = useState(new Date().toLocaleDateString());
   const [currentLocation, setCurrentLocation] = useState(null);
 
   const apiKey = '37d85c40a401f08f1670535f7412012f'; // Replace with your actual OpenWeatherMap API key
@@ -30,13 +29,6 @@ const WeatherWidget = () => {
       setError('Geolocation is not supported by this browser.');
       setLoading(false);
     }
-
-    // Update date
-    const intervalId = setInterval(() => {
-      setDate(new Date().toLocaleDateString());
-    }, 1000);
-
-    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
@@ -54,24 +46,42 @@ const WeatherWidget = () => {
       const data = await response.json();
       setLocation(data.city || data.locality || data.countryName);
     } catch (error) {
-      setLocation("Unknown Location");
+      setLocation('Unknown Location');
     }
   };
 
   const fetchWeather = async (latitude, longitude) => {
     try {
       const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=metric&cnt=5&appid=${apiKey}`
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=metric&appid=${apiKey}`
       );
       const data = response.data;
+
       setWeather(data.list[0]);
-      setForecast(data.list);
+      filterForecast(data.list);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching weather data:', error);
       setError('Failed to fetch weather data');
       setLoading(false);
     }
+  };
+
+  const filterForecast = (list) => {
+    const dailyForecast = [];
+    const uniqueDays = new Set();
+
+    list.forEach((item) => {
+      const date = new Date(item.dt * 1000).getDate();
+
+      // Only add the first occurrence of each day
+      if (!uniqueDays.has(date)) {
+        dailyForecast.push(item);
+        uniqueDays.add(date);
+      }
+    });
+
+    setForecast(dailyForecast);
   };
 
   const getWeatherIcon = (icon) => {
@@ -82,22 +92,23 @@ const WeatherWidget = () => {
   if (error) return <div className="bg-red-500 text-white p-6 rounded-xl shadow-lg">{error}</div>;
 
   return (
-    <div className="bg-white text-black p-6 rounded-xl shadow-lg">
-      <div className="flex items-center justify-between">
+    <div className="bg-white text-black p-6 rounded-xl shadow-lg max-w-lg mx-auto">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h4 className="text-4xl font-bold mb-1">{Math.round(weather.main.temp)}°C</h4>
-          <p className="text-lg">{weather.weather[0].description}</p>
+          <p className="text-lg capitalize">{weather.weather[0].description}</p>
           <p className="text-sm">{location}</p>
         </div>
         <img src={getWeatherIcon(weather.weather[0].icon)} alt="weather icon" className="h-16 w-16" />
       </div>
-      <div className="mt-4 grid grid-cols-5 gap-4 text-sm">
+
+      <div className="grid grid-cols-5 gap-2 text-sm">
         {forecast.map((day, index) => (
           <div key={index} className="bg-gray-100 p-4 rounded-lg text-center">
-            <div>{new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })}</div>
-            <img src={getWeatherIcon(day.weather[0].icon)} alt="weather icon" className="mx-auto my-2 h-8 w-8" />
+            <div className="truncate">{new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })}</div>
+            <img src={getWeatherIcon(day.weather[0].icon)} alt="weather icon" className="mx-auto my-2 h-10 w-10" />
             <div className="text-xl font-bold">{Math.round(day.main.temp)}°C</div>
-            <div>{day.weather[0].description}</div>
+            <div className="text-xs capitalize">{day.weather[0].description}</div>
           </div>
         ))}
       </div>

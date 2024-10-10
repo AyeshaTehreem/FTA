@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Clock, User, Cloud, Wind, Droplet, Mail } from 'lucide-react';
 import axios from 'axios';
+import WeatherWidget from './WeatherWidgets';
+import { Link } from 'react-router-dom';
+
 
 const NewsTicker = ({ items }) => (
   <div className="bg-red-600 text-white py-2 px-4 overflow-hidden">
@@ -16,23 +19,7 @@ const NewsTicker = ({ items }) => (
     </motion.div>
   </div>
 );
-
-const WeatherWidget = () => (
-  <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-    <div className="flex justify-between items-center mb-4">
-      <div>
-        <h3 className="text-2xl font-bold">33°C</h3>
-        <p className="text-gray-600">Clear sky</p>
-      </div>
-      <Cloud size={48} className="text-blue-500" />
-    </div>
-    <p className="text-lg font-semibold mb-2">Islamabad</p>
-    <div className="flex justify-between text-sm text-gray-600">
-      <span className="flex items-center"><Wind size={14} className="mr-1" /> 2.1 m/s</span>
-      <span className="flex items-center"><Droplet size={14} className="mr-1" /> 45%</span>
-    </div>
-  </div>
-);
+<WeatherWidget/>
 
 const SmallArticleCard = ({ article, index }) => (
   <motion.div
@@ -184,12 +171,14 @@ const NewsletterSidebar = () => {
         transition={{ duration: 0.2 }}
       />
       <motion.button
-        className="w-full bg-red-600 text-white py-2 rounded font-semibold"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        Sign Up Now
-      </motion.button>
+  className="w-full bg-red-600 text-white py-2 rounded font-semibold"
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+>
+  <Link to="/login" className="text-white">
+    Sign Up Now
+  </Link>
+</motion.button>
       <p className="text-xs text-gray-400 mt-2 text-center">You can unsubscribe at any time.</p>
     </motion.div>
   );

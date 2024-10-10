@@ -112,54 +112,47 @@ const ChatBox = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const themeClass = isDarkMode ? 'dark' : 'light';
-
   return (
-    <div className={`fixed bottom-4 right-4 font-sans ${themeClass}`}>
+    <div className="fixed bottom-4 right-4 font-sans">
       {isOpen ? (
-        <div className="w-96 h-[32rem] bg-gradient-to-br from-purple-600 to-blue-500 dark:from-black dark:to-black rounded-lg shadow-2xl overflow-hidden flex flex-col animate-slideUp">
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 flex justify-between items-center">
+        <div className="w-96 h-[32rem] bg-white rounded-lg shadow-2xl overflow-hidden flex flex-col animate-slideUp">
+          <div className="bg-white text-gray-800 p-4 flex justify-between items-center border-b">
             <h2 className="text-xl font-bold">AI Assistant</h2>
-            <div className="flex items-center space-x-2">
-              <button onClick={toggleDarkMode} className="text-white hover:text-yellow-300 transition-colors">
-                {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
-              <button onClick={toggleChat} className="text-white hover:text-gray-200 transition-colors">
-                <X size={24} />
-              </button>
-            </div>
+            <button onClick={toggleChat} className="text-gray-600 hover:text-red-500 transition-colors">
+              <X size={24} />
+            </button>
           </div>
-          <div className="flex-grow overflow-y-auto p-4 bg-opacity-10 bg-black dark:bg-opacity-10 custom-scrollbar">
+          <div className="flex-grow overflow-y-auto p-4 custom-scrollbar">
             {messages.map((msg, index) => (
               <div key={index} className={`mb-4 ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
                 <div className={`inline-block p-3 rounded-lg ${
                   msg.sender === 'user' 
-                    ? 'bg-orange-500 text-white' 
-                    : 'bg-black text-white'
-                } shadow-md max-w-[80%] animate-fadeIn`}>
+                    ? 'bg-red-100 text-gray-800' 
+                    : 'bg-gray-100 text-gray-800'
+                } shadow-sm max-w-[80%] animate-fadeIn`}>
                   {msg.text}
                 </div>
               </div>
             ))}
             {isTyping && (
-              <div className="text-orange-300 text-sm animate-pulse flex items-center">
+              <div className="text-red-500 text-sm animate-pulse flex items-center">
                 <Zap size={16} className="mr-2" />
                 AI is thinking...
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
-          <div className="p-4 bg-black border-t border-gray-700">
-            <div className="flex items-center bg-gray-700 rounded-full shadow-inner overflow-hidden">
+          <div className="p-4 bg-white border-t">
+            <div className="flex items-center bg-gray-100 rounded-full shadow-inner overflow-hidden">
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                className="flex-grow px-4 py-2 bg-transparent text-white placeholder-gray-400 focus:outline-none"
+                className="flex-grow px-4 py-2 bg-transparent text-gray-800 placeholder-gray-500 focus:outline-none"
                 placeholder="Type your message..."
               />
-              <button onClick={handleSend} className="p-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full hover:from-orange-600 hover:to-orange-700 transition-colors">
+              <button onClick={handleSend} className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors">
                 <Send size={20} />
               </button>
             </div>
@@ -168,7 +161,7 @@ const ChatBox = () => {
       ) : (
         <button
           onClick={toggleChat}
-          className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-full shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all flex items-center animate-pulse"
+          className="bg-red-500 text-white p-4 rounded-full shadow-lg hover:bg-red-600 transition-all flex items-center animate-pulse"
         >
           <MessageCircle size={24} className="mr-2" />
           <span className="font-bold">Chat with AI</span>
@@ -198,17 +191,11 @@ const CustomStyles = () => (
       width: 6px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.1);
+      background: rgba(0, 0, 0, 0.05);
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background-color: rgba(0, 0, 0, 0.2);
+      background-color: rgba(0, 0, 0, 0.1);
       border-radius: 3px;
-    }
-    .dark .custom-scrollbar::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.1);
-    }
-    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-      background-color: rgba(255, 255, 255, 0.2);
     }
   `}</style>
 );
