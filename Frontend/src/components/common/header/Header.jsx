@@ -10,7 +10,8 @@ const Header = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [verificationRequests, setVerificationRequests] = useState([]);
+  const [factChecks, setFactChecks] = useState([]);
+  const [factLoading, setFactLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,23 +19,22 @@ const Header = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
   useEffect(() => {
-    const fetchVerificationRequests = async () => {
-      try {
-        const response = await axios.get('http://localhost:5002/verifications/requests/statuscount/2');
-        const latestRequests = response.data.slice(0, 4).map(request => ({
-          img: request.imageUrl,
-          status: request.status
-        }));
-        setVerificationRequests(latestRequests);
-      } catch (error) {
-        console.error('Error fetching verification requests:', error);
-      }
-    };
+  const fetchFactChecks = async () => {
+    try {
+      const response = await axios.get('http://localhost:5002/verifications/requests/statuscount/2', { withCredentials: true });
+      setFactChecks(response.data.slice(0, 4));  // Fetch and limit to 4 fact checks
+      setFactLoading(false);
+    } catch (error) {
+      console.error('Error fetching fact checks:', error);
+      setFactLoading(false);
+    }
+  };
+  
+  fetchFactChecks();
+}, []);
 
-    fetchVerificationRequests();
-  }, []);
+    
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -260,24 +260,18 @@ const Header = () => {
         {showMegamenu && (
         <div className="mega-menu absolute top-full left-0 w-full bg-white shadow-lg py-4 z-50">
           <div className="container mx-auto px-4 flex space-x-4 overflow-x-auto">
-            {verificationRequests.map((fact) => (
-              <div key={fact._id} className="flex-none w-80">
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <img 
-                    src={`https://ftatimesfyp.s3.eu-north-1.amazonaws.com/${fact.imageUrl}`}
-                    alt={fact.status} 
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full mb-3 ${
-                      fact.status === 'Verified' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-                    }`}>
-                      {fact.status === 'Verified' ? 'Real' : 'Fake'}
-                    </span>
-                  </div>
+          {factChecks.map((fact) => (
+            <div key={fact._id} className="flex-none w-80"> {/* Increased width to make images larger */}
+              <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <img src={`https://ftatimesfyp.s3.eu-north-1.amazonaws.com/${fact.imageUrl}`} alt={fact.status} className="w-full h-48 object-cover" /> {/* Increased image height */}
+                <div className="p-4">
+                  <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full mb-3 ${fact.status === 'Verified' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                    {fact.status === 'Verified' ? 'Real' : 'Fake'}
+                  </span>
                 </div>
               </div>
-            ))}
+            </div>
+          ))}
           </div>
         </div>
       )}
