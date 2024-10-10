@@ -151,7 +151,7 @@ const Sidebar = ({ onCategorySelect }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const categories = ['Programming', 'Game', 'Framework'];
+  const categories = ['Property', 'Programming', 'Life Style', 'Technology', 'Framework', 'Sport', 'Game'];
   const tags = ['Property', 'Programming', 'Life Style', 'Technology', 'Framework', 'Sport', 'Game'];
   const archives = [
     { month: 'March 2017', count: 22 },

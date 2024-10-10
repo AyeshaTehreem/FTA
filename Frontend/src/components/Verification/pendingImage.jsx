@@ -2,39 +2,25 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { motion, useViewportScroll, useTransform, useSpring } from 'framer-motion';
 import { UserContext } from '../../UserContext';  // Adjust import path as necessary
+import { X, Check } from 'lucide-react';
 
 const PendingImage = () => {
   const { user } = useContext(UserContext);
-  const [currentColor, setCurrentColor] = useState('#EF4444'); // Initial red color
+  const [currentColor, setCurrentColor] = useState('#EF4444');
   const [pendingImages, setPendingImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const { scrollYProgress } = useViewportScroll();
   const yRange = useTransform(scrollYProgress, [0, 1], [0, 100]);
   const pathLength = useSpring(yRange, { stiffness: 400, damping: 90 });
 
-  // Inline styles for NotAllowed image
-  const notAllowedContainerStyle = {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh'
-  };
-
-  const notAllowedImageStyle = {
-    maxWidth: '100%',
-    maxHeight: '100%'
-  };
-
   useEffect(() => {
-    if (!user.isLoggedIn || user.role !== 'verifier') {
-      // Show NotAllowed message if role is not 'verifier'
-      return;
+    if (user.isLoggedIn && user.role === 'verifier') {
+      fetchPendingImages();
     }
-    fetchPendingImages();
   }, [user]);
 
-  // Function to fetch pending images
   const fetchPendingImages = async () => {
     try {
       const response = await axios.get('http://localhost:5002/verifications/pending', { withCredentials: true });
@@ -65,6 +51,7 @@ const PendingImage = () => {
       await axios.post(`http://localhost:5002/verifications/${id}/respond`, { response }, { withCredentials: true });
       alert('Response submitted successfully.');
       fetchPendingImages();
+      setSelectedImage(null);
     } catch (error) {
       console.error('Error submitting response:', error);
       alert('Failed to submit response.');
@@ -73,32 +60,33 @@ const PendingImage = () => {
 
   if (!user.isLoggedIn || user.role !== 'verifier') {
     return (
-      <div style={notAllowedContainerStyle}>
-        <img src="/images/popular/not.jpeg" alt="Not Allowed" style={notAllowedImageStyle} />
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <img src="/images/popular/not.jpeg" alt="Not Allowed" className="max-w-full max-h-full object-contain" />
       </div>
     );
   }
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-red-500"></div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800 overflow-hidden">
-      {/* Scroll Progress Bar */}
       <motion.div
         style={{ backgroundColor: currentColor }}
         className="fixed top-0 left-0 right-0 h-2 z-50"
       />
 
-      {/* Main Content */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
         className="container mx-auto px-4 py-12"
       >
-        {/* Pending Requests Heading with Animation */}
         <motion.h1
           className="text-7xl font-bold text-center mb-16"
           initial={{ y: -100, opacity: 0 }}
@@ -106,46 +94,82 @@ const PendingImage = () => {
           transition={{ type: 'spring', stiffness: 100, damping: 20 }}
           style={{ color: currentColor }}
         >
-          Pending Requests
+          Pending Verifications
         </motion.h1>
 
-        {/* Grid to display pending image cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {pendingImages.map((data) => (
-            <div key={data._id} className="bg-white rounded-lg shadow-md p-4 text-center border border-red-500">
+            <motion.div
+              key={data._id}
+              className="bg-white rounded-lg shadow-lg overflow-hidden"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            >
               <img
                 src={`https://ftatimesfyp.s3.eu-north-1.amazonaws.com/${data.imageUrl}`}
                 alt="Pending verification"
-                className="w-full h-40 object-cover rounded-md mb-4"
+                className="w-full h-64 object-cover cursor-pointer"
+                onClick={() => setSelectedImage(data)}
               />
-              {/* Use optional chaining to safely access user properties */}
-              <h3 className="text-lg font-semibold text-red-600 mb-2">{data.user?.username || 'Unknown User'}</h3>
-              <p className="text-gray-500 mb-4">{data.user?.email || 'No Email Provided'}</p>
-              <div className="flex justify-around items-center">
-                {/* Updated Buttons */}
-                <button
-                  onClick={() => handleResponse(data._id, 'Fake')}
-                  className="bg-red-600 text-white px-6 py-3 text-lg rounded-md hover:bg-red-700"
-                >
-                  Fake
-                </button>
-                <button
-                  onClick={() => handleResponse(data._id, 'Real')}
-                  className="bg-white text-red-600 border border-red-600 px-6 py-3 text-lg rounded-md hover:bg-red-50"
-                >
-                  Real
-                </button>
+              <div className="p-6">
+                <h3 className="text-xl font-semibold text-red-600 mb-2">{data.user?.username || 'Unknown User'}</h3>
+                <p className="text-gray-500 mb-4">{data.user?.email || 'No Email Provided'}</p>
+                <div className="flex justify-between items-center">
+                  <button
+                    onClick={() => handleResponse(data._id, 'Fake')}
+                    className="bg-red-600 text-white px-6 py-3 rounded-full hover:bg-red-700 transition duration-300 flex items-center"
+                  >
+                    <X className="mr-2" /> Fake
+                  </button>
+                  <button
+                    onClick={() => handleResponse(data._id, 'Real')}
+                    className="bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition duration-300 flex items-center"
+                  >
+                    <Check className="mr-2" /> Real
+                  </button>
+                </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </motion.div>
 
-      {/* Scroll Progress Bar Bottom */}
       <motion.div
         className="fixed bottom-0 left-0 right-0 h-2 bg-gray-300"
         style={{ scaleX: pathLength }}
       />
+
+      {selectedImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-4xl w-full">
+            <img
+              src={`https://ftatimesfyp.s3.eu-north-1.amazonaws.com/${selectedImage.imageUrl}`}
+              alt="Full size"
+              className="w-full h-auto max-h-[80vh] object-contain mb-4"
+            />
+            <div className="flex justify-between">
+              <button
+                onClick={() => handleResponse(selectedImage._id, 'Fake')}
+                className="bg-red-600 text-white px-6 py-3 rounded-full hover:bg-red-700 transition duration-300 flex items-center"
+              >
+                <X className="mr-2" /> Fake
+              </button>
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="bg-gray-600 text-white px-6 py-3 rounded-full hover:bg-gray-700 transition duration-300"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => handleResponse(selectedImage._id, 'Real')}
+                className="bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition duration-300 flex items-center"
+              >
+                <Check className="mr-2" /> Real
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
