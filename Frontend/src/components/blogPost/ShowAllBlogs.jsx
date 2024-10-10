@@ -8,11 +8,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 const NewsTicker = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const newsItems = [
-    "Contrary to popular belief Lorem Ipsum is not simply random text.",
-    "Education to popular belief Lorem Ipsum is not simply",
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-    "Corporis repellendus eum nobis cum ab",
-    "Voluptatibus laudantium itaque, sunt natus hic assumenda",
+    "The Evolution of Laptops: From Bulk to Sleek Powerhouses",
+    "The Thrilling World of Gaming In Industry",
+    "Programming is life",
+    "Navigating the Shifting Political Landscape: Challenges and Opportunities for Democracy",
   ];
 
   useEffect(() => {
