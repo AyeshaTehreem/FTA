@@ -81,7 +81,8 @@ const WeatherWidget = () => {
       }
     });
 
-    setForecast(dailyForecast);
+    // Limit the forecast to 5 days
+    setForecast(dailyForecast.slice(0, 5));
   };
 
   const getWeatherIcon = (icon) => {
