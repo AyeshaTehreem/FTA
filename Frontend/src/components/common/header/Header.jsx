@@ -23,7 +23,7 @@ const Header = () => {
   const fetchFactChecks = async () => {
     try {
       const response = await axios.get('http://localhost:5002/verifications/requests/statuscount/2', { withCredentials: true });
-      setFactChecks(response.data.slice(0, 4));  // Fetch and limit to 4 fact checks
+      setFactChecks(response.data.reverse().slice(0, 4));  // Fetch and limit to 4 fact checks
       setFactLoading(false);
     } catch (error) {
       console.error('Error fetching fact checks:', error);

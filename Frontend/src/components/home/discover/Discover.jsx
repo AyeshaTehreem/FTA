@@ -34,8 +34,7 @@ const SmallArticleCard = ({ article, index }) => (
     <h3 className="text-lg font-semibold mb-2 line-clamp-2">{article.title}</h3>
     <p className="text-sm text-gray-600 line-clamp-2">{article.excerpt}</p>
   </motion.div>
-);
-const FeaturedArticle = ({ article }) => (
+);const FeaturedArticle = ({ article }) => (
   <motion.div 
     className="mb-12"
     initial={{ opacity: 0 }}
@@ -59,7 +58,6 @@ const FeaturedArticle = ({ article }) => (
       <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full mb-3 ${article.status === 'Verified' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
         {article.status === 'Verified' ? 'Real' : 'Fake'}
       </span>
- 
     </motion.div>
   </motion.div>
 );
@@ -88,23 +86,17 @@ const SecondaryArticleCard = ({ article, index }) => (
         whileHover={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       />
-      <motion.span
-        className={`absolute bottom-4 left-4 text-white font-bold text-lg px-3 py-1 rounded-full ${article.status === 'Verified' ? 'bg-green-500' : 'bg-red-500'}`}
-        initial={{ y: 20, opacity: 0 }}
-        whileHover={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        {article.status === 'Verified' ? 'Real' : 'Fake'}
-      </motion.span>
+      
     </motion.div>
-    <div className="p-6">
-     
+    <div className="p-4 sm:p-6">
       <motion.button
         className="flex items-center text-red-600 font-semibold"
         whileHover={{ x: 5 }}
         transition={{ duration: 0.2 }}
       >
-        
+        <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full mb-3 ${article.status === 'Verified' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+        {article.status === 'Verified' ? 'Real' : 'Fake'}
+      </span>
       </motion.button>
     </div>
   </motion.div>
@@ -206,7 +198,7 @@ const App = () => {
     const fetchArticles = async () => {
       try {
         const response = await axios.get('http://localhost:5002/verifications/requests/statuscount/2', { withCredentials: true });
-        setArticles(response.data); // Assuming response.data is an array of articles
+        setArticles(response.data.reverse()); // Assuming response.data is an array of articles
       } catch (error) {
         console.error('Error fetching articles:', error);
       } finally {
