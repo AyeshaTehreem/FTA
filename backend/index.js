@@ -12,9 +12,6 @@ const createError = require('http-errors');
 // Import routes
 const authRoutes = require('./routes/auth');
 const blogRoutes = require('./routes/blogs');
-const categoryRoutes = require('./routes/category');
-const feedbackRoutes = require('./routes/feedback');
-const tagRoutes = require('./routes/tag');
 const verificationRoutes = require('./routes/verification');
 
 dotenv.config(); // Load environment variables from .env file
@@ -60,9 +57,6 @@ app.use(
 // Use routes
 app.use('/auth', authRoutes);
 app.use('/blogs', blogRoutes);
-app.use('/categories', categoryRoutes);
-app.use('/feedbacks', feedbackRoutes);
-app.use('/tags', tagRoutes);
 app.use('/verifications', verificationRoutes);
 
 // Error handling for 404
