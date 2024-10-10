@@ -10,12 +10,30 @@ const Header = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [verificationRequests, setVerificationRequests] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const fetchVerificationRequests = async () => {
+      try {
+        const response = await axios.get('http://localhost:5002/verifications/requests/statuscount/2');
+        const latestRequests = response.data.slice(0, 4).map(request => ({
+          img: request.imageUrl,
+          status: request.status
+        }));
+        setVerificationRequests(latestRequests);
+      } catch (error) {
+        console.error('Error fetching verification requests:', error);
+      }
+    };
+
+    fetchVerificationRequests();
   }, []);
 
   useEffect(() => {
@@ -30,10 +48,10 @@ const Header = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
   const newsItems = [
-    { img: "/images/life/life1.jpg", link: "/news/item1", title: "Lorem ipsum dolor sit amet, consectetur adipiscing.", category: "FASHION" },
-    { img: "/images/gallery/g2.jpg", link: "/news/item2", title: "Proin quis massa tincidunt justo cursus dapibus.", category: "SPORTS" },
-    { img: "/images/gallery/g3.jpg", link: "/news/item3", title: "Nulla hendrerit dui in erat varius vestibulum.", category: "TRAVEL" },
-    { img: "/images/gallery/g4.jpg", link: "/news/item4", title: "Maecenas dictum lacus in bibendum commodo.", category: "BUSINESS" },
+    { img: "/images/life/life1.jpg", status: "Rejected" },
+    { img: "/images/gallery/g2.jpg", status: "Rejected" },
+    { img: "/images/gallery/g3.jpg", status: "Rejected" },
+    { img: "/images/gallery/g4.jpg", status: "Rejected" },
   ];
   const CACHE_KEY = 'trendingBlogTitles';
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
@@ -41,6 +59,8 @@ const Header = () => {
   const TrendingSection = () => {
     const [currentTextIndex, setCurrentTextIndex] = useState(0);
     const [trendingTexts, setTrendingTexts] = useState([]);
+
+    
 
     useEffect(() => {
       const fetchTrendingBlogs = async () => {
@@ -147,7 +167,7 @@ const Header = () => {
           </Link>
         )}
 
-{user?.isLoggedIn && user?.role === 'admin' && (
+        {user?.isLoggedIn && user?.role === 'admin' && (
           <Link to="/manageverified" className="text-sm text-gray-600 hover:text-gray-800">
             MANAGE VERIFICATIONS
           </Link>
@@ -204,32 +224,32 @@ const Header = () => {
               <Link to="/mega-menu" className="text-sm font-semibold text-gray-800 hover:text-red-600">MEGA MENU ▼</Link>
             </li>
             <li className="relative">
-  <button onClick={toggleDropdown} className="text-sm font-semibold text-red-600">
-    PAGES ▼
-  </button>
-  {isDropdownOpen && (
-    <ul className="absolute bg-white shadow-lg mt-2 rounded z-50">
-      <li>
-        <Link
-          to="/fakenews"
-          className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-          onClick={() => setIsDropdownOpen(false)}
-        >
-          FAKE NEWS
-        </Link>
-      </li>
-      <li>
-        <Link
-          to="/blogs"
-          className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-          onClick={() => setIsDropdownOpen(false)}
-        >
-          BLOGS
-        </Link>
-      </li>
-    </ul>
-  )}
-</li>
+              <button onClick={toggleDropdown} className="text-sm font-semibold text-red-600">
+                PAGES ▼
+              </button>
+              {isDropdownOpen && (
+                <ul className="absolute bg-white shadow-lg mt-2 rounded z-50">
+                  <li>
+                    <Link
+                      to="/fakenews"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      FAKE NEWS
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/blogs"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      BLOGS
+                    </Link>
+                  </li>
+                </ul>
+              )}
+            </li>
 
 
             <li><Link to="/aboutpage" className="text-sm font-semibold text-gray-800 hover:text-red-600">ABOUT US</Link></li>
@@ -238,20 +258,29 @@ const Header = () => {
           </ul>
         </nav>
         {showMegamenu && (
-          <div className="mega-menu absolute top-full left-0 w-full bg-white shadow-lg py-4 z-50">
-            <div className="container mx-auto px-4 grid grid-cols-4 gap-4">
-              {newsItems.map((item, index) => (
-                <Link to={item.link} className="block group" key={index}>
-                  <img src={item.img} alt={item.title} className="w-full h-40 object-cover group-hover:opacity-75 transition-opacity" />
-                  <div className="mt-2">
-                    <div className="text-xs text-gray-500">{item.category}</div>
-                    <div className="text-sm font-semibold text-gray-800 group-hover:text-red-600 transition-colors">{item.title}</div>
+        <div className="mega-menu absolute top-full left-0 w-full bg-white shadow-lg py-4 z-50">
+          <div className="container mx-auto px-4 flex space-x-4 overflow-x-auto">
+            {verificationRequests.map((fact) => (
+              <div key={fact._id} className="flex-none w-80">
+                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                  <img 
+                    src={`https://ftatimesfyp.s3.eu-north-1.amazonaws.com/${fact.imageUrl}`}
+                    alt={fact.status} 
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-4">
+                    <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full mb-3 ${
+                      fact.status === 'Verified' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                    }`}>
+                      {fact.status === 'Verified' ? 'Real' : 'Fake'}
+                    </span>
                   </div>
-                </Link>
-              ))}
-            </div>
+                </div>
+              </div>
+            ))}
           </div>
-        )}
+        </div>
+      )}
       </div>
       {sidebarOpen && (
         <div className="sm:hidden absolute top-0 left-0 w-full h-screen bg-white z-50 flex flex-col">
