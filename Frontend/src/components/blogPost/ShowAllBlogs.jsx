@@ -271,8 +271,9 @@ const EnhancedBlogPage = () => {
     const fetchBlogs = async () => {
       try {
         const response = await axios.get('http://localhost:5002/blogs');
-        setBlogs(response.data);
-        setFilteredBlogs(response.data);
+        const reversedBlogs = response.data.reverse(); // Reverse the order of blogs
+        setBlogs(reversedBlogs);
+        setFilteredBlogs(reversedBlogs);
       } catch (error) {
         console.error('Error fetching blogs:', error);
       } finally {
